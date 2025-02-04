@@ -1,0 +1,80 @@
+{% extends 'Principal.html' %}
+
+{% block contenido %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+<div class="card shadow p-4">
+    <h2 class="text-secondary mb-4">Filtros de búsqueda</h2>
+    <form method="GET" class="mb-4">
+        {{ formulario.nombre.label_tag }}
+        {{ formulario.nombre }}
+        {% for error in formulario.nombre.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        {{ formulario.apellido.label_tag }}
+        {{ formulario.apellido }}
+        {% for error in formulario.apellido.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        {{ formulario.telefono.label_tag }}
+        {{ formulario.telefono }}
+        {% for error in formulario.telefono.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </form>
+</div>
+
+<h2 class="text-center text-secondary my-4">Resultados de búsqueda</h2>
+
+<div class="row">
+    {% if pasajeros %}
+        {% for pasajero in pasajeros %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ pasajero.id }}</h5>
+                    <p class="card-text">
+                        <strong>nombre:</strong> {{ pasajero.nombre }}<br>
+                        <strong>apellido:</strong> {{ pasajero.apellido }}<br>
+                        <strong>Telefono:</strong> {{ pasajero.telefono }}<br>
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    {% load bootstrap_icons %}
+                    <div class="row btn-group">
+                        <div class="mb-2">
+                            <button type="button" 
+                                    class="btn btn-outline-primary"> 
+                                    <a href="{% url 'Pasajero_modificar' pasajero.id %}" ><span>{% bs_icon 'pencil' %}</span></a>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <form action = "{% url 'Pasajero_eliminar' pasajero.id %}" method = "post"> 
+                            {% csrf_token %}
+                            <button class="btn btn-danger" onclick="return eliminar();" type="submit">
+                                <span>{% bs_icon 'trash' %}</span>
+                            </button> 
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <p class="text-center text-danger">No se encontraron resultados.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

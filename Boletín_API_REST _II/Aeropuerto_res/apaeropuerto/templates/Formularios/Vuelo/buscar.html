@@ -1,0 +1,96 @@
+{% extends 'Principal.html' %}
+
+{% block contenido %}
+{% if messages %}
+{% for message in messages %}
+
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+{% endfor %}
+{% endif %}
+<div class="card shadow p-4">
+    <h2 class="text-secondary mb-4">Filtros de búsqueda</h2>
+    <form method="GET" class="mb-4">
+        {{ formulario.hora_salida.label_tag }}
+        {{ formulario.hora_salida }}
+        {% for error in formulario.hora_salida.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+
+        {{ formulario.hora_llegada.label_tag }}
+        {{ formulario.hora_llegada }}
+        {% for error in formulario.hora_llegada.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        {{ formulario.estado.label_tag }}
+        {{ formulario.estado }}
+        {% for error in formulario.estado.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        {{ formulario.origen.label_tag }}
+        {{ formulario.origen }}
+        {% for error in formulario.origen.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+
+        {{ formulario.destino.label_tag }}
+        {{ formulario.destino }}
+        {% for error in formulario.destino.errors %}
+            <div class="text-danger"><small>{{ error }}</small></div>
+        {% endfor %}
+    
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </form>
+</div>
+
+<h2 class="text-center text-secondary my-4">Resultados de búsqueda</h2>
+
+<div class="row">
+    {% if vuelos %}
+        {% for vuelo in vuelos %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ vuelo.id }}</h5>
+                    <p class="card-text">
+                        <strong>Hora salida:</strong> {{ vuelo.hora_salida }}<br>
+                        <strong>Hora llegada:</strong> {{ vuelo.hora_llegada }}<br>
+                        <strong>Estado volando:</strong> {{ vuelo.estado }}<br>
+                        <strong>Origen:</strong> {{ vuelo.origen }}<br>
+                        <strong>Destino:</strong> {{ vuelo.destino }}<br>
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    {% load bootstrap_icons %}
+                    <div class="row btn-group">
+                        <div class="mb-2">
+                            <button type="button" 
+                                    class="btn btn-outline-primary"> 
+                                    <a href="{% url 'Vuelo_modificar' vuelo.id %}" ><span>{% bs_icon 'pencil' %}</span></a>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <form action = "{% url 'Vuelo_eliminar' vuelo.id %}" method = "post"> 
+                            {% csrf_token %}
+                            <button class="btn btn-danger" onclick="return eliminar();" type="submit">
+                                <span>{% bs_icon 'trash' %}</span>
+                            </button> 
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <p class="text-center text-danger">No se encontraron resultados.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

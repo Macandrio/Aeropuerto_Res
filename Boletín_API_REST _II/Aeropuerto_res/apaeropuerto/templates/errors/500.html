@@ -1,0 +1,11 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <h1>Error 500 - Error Interno del Servidor</h1>
+    <p>Hubo un problema en nuestro servidor. Estamos trabajando para solucionarlo.</p>
+    <a href="/">Regresar a la página de inicio</a>
+{% endblock %}

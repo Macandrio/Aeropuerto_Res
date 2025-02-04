@@ -1,0 +1,9 @@
+
+    <h2>Vuelo Aerolínea</h2>
+    <p><strong>ID:</strong> {{ vuelo_aerolinea.id }}</p>
+    <p><strong>Aerolinea:</strong> {{vuelo_aerolinea.aerolinea.nombre }}</p>
+    <p><strong>Vuelo:</strong> {{vuelo_aerolinea.vuelo.id }}</p>
+    <p><strong>Fecha operacion:</strong> {% if vuelo_aerolinea.fecha_operacion|date:"d-m-Y H:i" %} {{ vuelo_aerolinea.fecha_operacion }}  {% else %} No Tiene fecha de operacion {% endif %}</p> 
+    <p><strong>Estado:</strong> {{ vuelo_aerolinea.estado }}</p>
+    <p><strong>Clase:</strong> {{ vuelo_aerolinea.clase }}</p>
+    <p><strong>Incidencias:</strong> {{ vuelo_aerolinea.incidencias|default:"Sin valor" }}</p>

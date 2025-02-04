@@ -1,0 +1,17 @@
+{% extends "Principal.html" %}
+
+{% block contenido %}
+
+{% load django_bootstrap5 %}
+<form action = "{% url 'Pasajero_modificar' pasajero.id %}" method = "post"> 
+    {% load django_bootstrap5 %} 
+    {% csrf_token %} 
+
+    {% bootstrap_form formulario %}       
+
+    {% bootstrap_button "Enviar" button_type="submit" button_class="btn-primary" %}
+
+</form> 
+
+
+{% endblock %}

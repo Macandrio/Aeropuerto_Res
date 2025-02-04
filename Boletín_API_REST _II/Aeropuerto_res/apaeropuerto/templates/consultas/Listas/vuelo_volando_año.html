@@ -1,0 +1,11 @@
+<p><strong>ID del vuelo:</strong> {{ vuelos.vuelo.id }}</p>
+                <p><strong>Hora Salida:</strong> {{ vuelos.vuelo.hora_salida|date:"d-m-Y H:i" }}</p>
+                <p><strong>Hora Salida:</strong> {{ vuelos.vuelo.hora_llegada|date:"d-m-Y H:i" }}</p>
+                <p><strong>Estado:</strong> {% if vuelos.vuelo.estado %} Volando {% else %} Aterrizado {% endif %}</p> 
+                <p><strong>Duracion:</strong> {{ vuelos.vuelo.duracion}}</p>
+                <br>
+                    <p><strong>ID de las estadistica:</strong> {{ vuelos.id }}</p>
+                    <p><strong>Fecha de la estadistica del vuelo:</strong> {{ vuelos.fecha_estadisticas|date:"d-m-Y" }}</p>
+                    <p><strong>Asientos vendidos:</strong> {{ vuelos.numero_asientos_vendidos }}</p>
+                    <p><strong>Asientos Cancelados:</strong> {{ vuelos.numero_cancelaciones }}</p>
+                    <p><strong>feedback :</strong> {{ vuelos.feedback_pasajeros }}</p>

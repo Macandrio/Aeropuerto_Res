@@ -1,0 +1,55 @@
+{% extends "Principal.html" %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <h1 class="text-center">Modificar Aeropuerto</h1>
+
+    <!-- Mostrar mensajes de error o éxito -->
+    {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} text-center" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post" action="">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ formulario.nombre.label_tag }}
+            {{ formulario.nombre }}
+            {% if formulario.nombre.errors %}
+                <div class="text-danger">{{ formulario.nombre.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ formulario.ciudades.label_tag }}
+            {{ formulario.ciudades }}
+            {% if formulario.ciudades.errors %}
+                <div class="text-danger">{{ formulario.ciudades.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ formulario.pais.label_tag }}
+            {{ formulario.pais }}
+            {% if formulario.pais.errors %}
+                <div class="text-danger">{{ formulario.pais.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ formulario.capacidad_maxima.label_tag }}
+            {{ formulario.capacidad_maxima }}
+            {% if formulario.capacidad_maxima.errors %}
+                <div class="text-danger">{{ formulario.capacidad_maxima.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+            <a href="{% url 'lista_aeropuerto' %}" class="btn btn-secondary ms-3">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

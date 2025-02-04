@@ -1,0 +1,25 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+            <h1>Reservas con Método de Pago:</h1>
+            {% for reserva in reservas %}
+                
+                    <h2>Pasajero: {{ reserva.pasajero.nombre }} en el vuelo {{ reserva.vuelo.id }}</h2>
+                    <article>
+                        {% include 'Listas/Reserva.html' %}
+                        {% if reserva.metodo_pago|lower == 'tarjeta' or reserva.fecha.year > 2020 %}
+                            <p>Pago realizado con tarjeta o realizado despues del año 2020.</p>
+                        {% elif reserva.metodo_pago == 'Efectivo' %}
+                            <p>Pago realizado en efectivo.</p>
+                        {% else %}
+                            <p>Método de pago no especificado.</p>
+                        {% endif %}
+                    </article>
+            {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>Peso Total del Equipaje</h1>
+
+        {% if peso_total >= 500 and peso_total <= 1000 %}
+            <h2>Este avión está cerca del límite de peso.</h2>
+        {% elif peso_total > 1000 %}
+            <h2>Este avión supera el límite de peso.</h2>
+        {% else %}
+            <h2>El peso del avión está dentro de los límites aceptables.</h2>
+        {% endif %}
+            <h2>Peso Total:{{ peso_total }} kg</p></h2>
+            <h3>Detalles de los Equipaje:</h3>
+            
+            {% for equipaje in equipajes %}
+            <article>
+                {% include 'Listas/Equipaje.html' %}
+            </article>
+            {% endfor %}
+    </div>
+{% endblock %}
+    

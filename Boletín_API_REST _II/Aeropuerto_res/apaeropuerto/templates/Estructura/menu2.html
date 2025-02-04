@@ -1,0 +1,53 @@
+<ul>
+    {% if user.is_authenticated %} <!-- Verifica que el usuario esté logueado -->
+            {% if user.rol == user.PASAJERO %} <!-- Opciones para el rol PASAJERO -->
+            <li class="menu-item">
+                <a href="{% url 'lista_reserva' %}">Reservas</a>
+            </li>
+            {% elif user.rol == user.GERENTE %} <!-- Opciones para el rol GERENTE -->
+            <li class="menu-item">
+                <a href="{% url 'lista_EstadisticasVuelo' %}">Estadísticas de Vuelo</a>
+            </li>
+            {% endif %}
+        {% else %}    
+            <li class="menu-item">
+                <a href="{% url 'lista_aeropuerto' %}">Aeropuertos</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_vuelo' %}">Vuelos</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_pasajero' %}">Pasajeros</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_equipaje' %}">Equipajes</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_aerolineas' %}">Aerolíneas</a>  
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_vuelos_aerolineas' %}">Vuelos de Aerolínea</a>  
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_reserva' %}">Reservas</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_empleado' %}">Empleados</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_silla' %}">Sillas</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_servicio' %}">Servicios</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_EstadisticasVuelo' %}">Estadísticas de Vuelo</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_ContactoAeropuerto' %}">Contacto del Aeropuerto</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'lista_PerfilPasajero' %}">Perfil Pasajero</a>
+            </li>
+    {% endif %}
+</ul>

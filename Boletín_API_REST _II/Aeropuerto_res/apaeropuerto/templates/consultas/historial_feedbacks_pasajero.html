@@ -1,0 +1,24 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>feedbacks de los vuelos que este el pasajero {{ pasajero.id }}</p></h1>
+        <article>
+            {% include 'Listas/Pasajero.html' %}
+        </article>
+        <h1>feedbacks</p></h1>
+        {% if feedbacks %}
+            {% for feedback in feedbacks %}
+                <article>
+                    {% include 'consultas/Listas/historial_feedbacks_pasajero.html' %}
+                </article>
+            {% endfor %}
+        {% else %}
+            <p>No hay feedbacks disponibles.</p>
+        {% endif %}
+    </div>
+{% endblock %}

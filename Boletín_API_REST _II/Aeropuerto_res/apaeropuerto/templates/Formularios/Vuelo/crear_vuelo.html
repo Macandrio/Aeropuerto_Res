@@ -1,0 +1,28 @@
+{% extends 'Principal.html' %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Crear Vuelo</h2>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                {% load django_bootstrap5 %} 
+                {% csrf_token %}
+                
+                <!-- Formulario estilizado -->
+                {% bootstrap_form formulario layout="horizontal" %}       
+
+                <!-- Botón enviar -->
+                <div class="text-center mt-4">
+                    {% bootstrap_button "Enviar" button_type="submit" button_class="btn btn-success px-4" %}
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-muted text-center">
+            Complete los campos obligatorios para registrar un nuevo aeropuerto.
+        </div>
+    </div>
+</div>
+{% endblock %}
