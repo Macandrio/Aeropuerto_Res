@@ -1,0 +1,5 @@
+<p><strong>ID del Vuelo:</strong> {{ vuelo.vuelo.id }}</p>
+<p><strong>Fecha operacion:</strong> {% if vuelo.fecha_operacion|date:"d-m-Y" %} {{ vuelo.fecha_operacion }}  {% else %} No Tiene fecha de operacion {% endif %}</p> 
+<p><strong>Estado:</strong> {{ vuelo.estado }}</p>
+<p><strong>Clase:</strong> {{ vuelo.clase }}</p>
+<p><strong>Incidencias:</strong> {{ vuelo.incidencias }}</p>

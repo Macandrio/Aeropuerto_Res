@@ -1,0 +1,11 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <h1>Error 404 - Página No Encontrada</h1>
+    <p>La página que buscas no existe o ha sido movida.</p>
+    <a href="/">Regresar a la página de inicio</a>
+{% endblock %}

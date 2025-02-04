@@ -1,0 +1,16 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>Todos los vuelos del año {{ datosvuelo.0.fecha_estadisticas |date:"Y" }} que están volando:</h1>
+        {% for vuelos in datosvuelo %}
+            <article>
+                {% include 'consultas/Listas/vuelo_volando_año.html' %}
+            </article>   
+        {% endfor %}
+    </div>
+{% endblock %}

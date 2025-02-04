@@ -1,0 +1,20 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>Listado de Aerolíneas</h1>
+        {% if aerolineas %}
+            {% for aerolinea in aerolineas %}
+            <article>
+                {% include 'Listas/Aerolinea.html' %}
+            </article>
+            {% endfor %}
+        {% else %}
+            <p>No hay aerolíneas disponibles.</p>
+        {% endif %}
+        </div>
+{% endblock %}

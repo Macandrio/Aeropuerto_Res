@@ -1,0 +1,43 @@
+<div class="dropdown me-3"> <!-- Margen derecho -->
+    <button class="btn dropdown-toggle text-white" id="menuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i> Menú
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_aeropuerto' %}"><i class="fa-solid fa-building"></i> Aeropuertos</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_ContactoAeropuerto' %}"><i class="fa-solid fa-phone"></i> Contacto del Aeropuerto</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_vuelo' %}"><i class="fa-solid fa-plane"></i> Vuelos</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_aerolineas' %}"><i class="fa-solid fa-plane-departure"></i> Aerolíneas</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_vuelos_aerolineas' %}"><i class="fa-solid fa-plane-circle-check"></i> Vuelos de Aerolínea</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_pasajero' %}"><i class="fa-solid fa-user"></i> Pasajeros</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_equipaje' %}"><i class="fa-solid fa-suitcase-rolling"></i> Equipajes</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_reserva' %}"><i class="fa-solid fa-clock"></i> Reservas</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_empleado' %}"><i class="fa-solid fa-briefcase"></i> Empleados</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_silla' %}"><i class="fa-solid fa-chair"></i> Sillas</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_servicio' %}"><i class="fa-solid fa-broom"></i> Servicios</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'lista_EstadisticasVuelo' %}"><i class="fa-solid fa-chart-line"></i> Estadísticas de Vuelo</a>
+        </li>
+    </ul>
+</div>

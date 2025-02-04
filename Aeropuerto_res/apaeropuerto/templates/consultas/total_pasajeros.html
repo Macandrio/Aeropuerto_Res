@@ -1,0 +1,19 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">    
+            <h1>Total: {{ total_pasajeros }} pasajeros</p></h1>
+            
+            <h1>Detalles de los pasajeros:</h1>
+
+                {% for pasajero in pasajeros %}
+                    <article>
+                        {% include 'Listas/Pasajero.html' %}
+                    </article>
+                {% endfor %}
+    </div>
+{% endblock %}

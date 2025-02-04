@@ -1,0 +1,19 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>Listado de Servicios</h1>
+        {% for servicio in servicios %}
+        <article>
+            {% include 'Listas/Servicio.html' %}
+        </article>
+        {% endfor %}
+        <div class="refresh">
+            <a href="{% url 'lista_servicio' %}">Refrescar la Lista</a>
+        </div>
+    </div>
+{% endblock %}

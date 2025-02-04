@@ -1,0 +1,21 @@
+{% extends "Principal.html" %}
+{% load static %}
+{% block link_css %}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <div class="container">
+        <h1>Todos los texto de la Aerolinea: {{ aerolinea.id }}</h1>
+        <article>
+            {% include 'Listas/Aerolinea.html' %}
+        </article>
+        <h1>Todos los texto:</h1>
+
+        {% for vuelo_texto in vuelo_aerolinea %}
+            <article>
+                {% include 'consultas/Listas/texto_vuelo_aerolinea.html' %}
+            </article>
+        {% endfor %}       
+    </div>
+{% endblock %}
