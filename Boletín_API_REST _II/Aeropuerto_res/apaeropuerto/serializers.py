@@ -99,3 +99,9 @@ class VueloAerolineaSerializer(serializers.ModelSerializer):
                   'aerolinea',
                   )
         model = VueloAerolinea
+
+
+class EstadisticasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EstadisticasVuelo
+        fields = '__all__'

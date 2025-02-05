@@ -79,12 +79,11 @@ class AeropuertoForm(ModelForm):
             #Comprobamos que no exista un libro con ese nombre
             encontrar_aeropuerto = Aeropuerto.objects.filter(nombre=nombre).first()
 
-            if(not encontrar_aeropuerto is None
-           ):
+            if(not encontrar_aeropuerto is None):
              if(not self.instance is None and encontrar_aeropuerto.id == self.instance.id):
                  pass
              else:
-                self.add_error('nombre','Ya existe un libro con ese nombre')
+                self.add_error('nombre','Ya existe un Aeropuerto con ese nombre')
 
 
             if(nombre == " "):
@@ -102,29 +101,21 @@ class BusquedaAeropuertoForm(forms.Form):
 
 class BusquedaAvanzadaAeropuertoForm(forms.Form):
     
-    textoBusqueda = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-        })
-    )
-    Aeropuerto.CIUDADES.insert(0, ("", "Ninguno"))
+    textoBusqueda = forms.CharField()
+    
+    #Aeropuerto.CIUDADES.insert(0, ("", "Ninguno"))
 
-    ciudades = forms.ChoiceField(
+    ciudades = forms.MultipleChoiceField(
         choices=Aeropuerto.CIUDADES,
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-        })
+        widget=forms.CheckboxSelectMultiple()
     )
 
-    Aeropuerto.PAISES.insert(0, ("", "Ninguno"))
-    pais = forms.ChoiceField(
+    #Aeropuerto.PAISES.insert(0, ("", "Ninguno"))
+    pais = forms.MultipleChoiceField(
         choices=Aeropuerto.PAISES,
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-        })
+        widget=forms.CheckboxSelectMultiple()
     )
     
     
@@ -147,12 +138,7 @@ class BusquedaAvanzadaAeropuertoForm(forms.Form):
             #Si introduce un texto al menos que tenga  1 caracteres o más
             if(textoBusqueda != "" and len(textoBusqueda) < 2):
                 self.add_error('textoBusqueda','Debe introducir al menos 1 caracteres')
-        
-        if(ciudades == '' and pais == ''):
-            self.add_error('ciudades' , 'Debe introducir una Ciudad')
-            self.add_error('pais' , 'Debe introducir un Pais')
-
-            
+                    
         #Siempre devolvemos el conjunto de datos.
         return self.cleaned_data
     
@@ -315,6 +301,18 @@ class BusquedaAvanzadaEstadisticas(forms.Form):
         })
     )
 
+    feedback_pasajeros = forms.CharField()
+
+    vuelo = forms.ModelChoiceField(
+        queryset=Vuelo.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        })
+    )
+
+
+
     def clean(self):
         super().clean()
 
@@ -353,6 +351,7 @@ class Aerolineaform(ModelForm):
                 "placeholder": "Introduce el nombre de la aerolínea",
                 "maxlength": 100,
             }),
+
             "codigo_aerolinea": forms.TextInput(attrs={
                 "placeholder": "Introduce el código de la aerolínea",
                 "maxlength": 10,
@@ -414,6 +413,8 @@ class BusquedaAvanzadaAerolinea(forms.Form):
         })
     )
 
+    fecha_fundacion = forms.DateField()
+
 
 
 
@@ -433,7 +434,7 @@ class BusquedaAvanzadaAerolinea(forms.Form):
 
         
         # Validación de puntuación
-        if nombre is not None and len(nombre) < 3:
+        if nombre is not None and len(nombre) < 2:
             self.add_error('nombre', 'El nombre debe de tener minimo 3 caracteres.')
 
         return self.cleaned_data

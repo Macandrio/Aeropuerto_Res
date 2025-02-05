@@ -16,6 +16,7 @@ urlpatterns = [
     #Formularios
     path('Aeropuerto/<int:libro_id>', Aeropuerto_obtener),
     path('Aeropuerto/busqueda_simple', Aeropuerto_buscar),
-
-    
+    path('Aeropuerto/busqueda_avanzada', Aeropuerto_buscar_avanzado),
+    path('Aerolinea/busqueda_avanzada', Aerolinea_buscar_avanzado), 
+    path('Estadisticas/busqueda_avanzada', Estadisticas_buscar_avanzado),  
 ]

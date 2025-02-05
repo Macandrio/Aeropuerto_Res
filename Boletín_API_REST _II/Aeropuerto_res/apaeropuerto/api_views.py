@@ -5,6 +5,9 @@ from django.db.models import Q,Prefetch
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.models import Group
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 #----------------------------------------------Listar----------------------------------------------------------------
@@ -88,10 +91,153 @@ def Aeropuerto_buscar(request):
     formulario = BusquedaAeropuertoForm(request.query_params)
     if(formulario.is_valid()):
         texto = formulario.data.get('textoBusqueda')
-        aerolinea = Aeropuerto.objects.select_related("biblioteca").prefetch_related("autores")
-        aerolinea = Aeropuerto.filter(Q(nombre__contains=texto) | Q(descripcion__contains=texto)).all()
-        serializer = AeropuertoSerializer(aerolinea, many=True)
+        aeropuerto = Aeropuerto.objects.prefetch_related(
+            Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
+            Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
+            Prefetch('vuelos_de_destino'),        # ManyToOne reversa con Vuelo (destino)
+            Prefetch('servicio_aeropuerto')       # ManyToMany con Servicio
+        )
+        aeropuerto = aeropuerto.filter(nombre__contains=texto).all()
+        serializer = AeropuertoSerializer(aeropuerto, many=True)
         return Response(serializer.data)
     else:
         return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def Aeropuerto_buscar_avanzado(request):
+    if len(request.query_params) > 0:
+        # Copiar los parámetros para modificar
+        data = request.query_params.copy()
+
+        # Convertir strings separados por comas en listas
+        if 'pais' in data:
+            data.setlist('pais', data.get('pais').split(','))  # Convierte a lista
+
+        if 'ciudades' in data:
+            data.setlist('ciudades', data.get('ciudades').split(','))  # Convierte a lista
+
+        formulario = BusquedaAvanzadaAeropuertoForm(data)
+
+        if formulario.is_valid():
+            textoBusqueda = formulario.cleaned_data.get('textoBusqueda','')
+            QSaeropuerto = Aeropuerto.objects.prefetch_related(
+                Prefetch('aerolinea_de_aeropuerto'),
+                Prefetch('vuelos_de_origen'),
+                Prefetch('vuelos_de_destino'),
+                Prefetch('servicio_aeropuerto')
+            )
+
+            # Obtener los filtros del formulario
+            textoBusqueda = formulario.cleaned_data.get('textoBusqueda')
+            ciudades = formulario.cleaned_data.get('ciudades', [])  # Lista de ciudades
+            paises = formulario.cleaned_data.get('pais', [])  # Lista de países
+
+            # Aplicar filtros dinámicamente
+            if textoBusqueda:
+                QSaeropuerto = QSaeropuerto.filter(nombre__icontains=textoBusqueda)
+
+            if ciudades:
+                filtro_ciudad = Q(ciudad=ciudades[0])
+                for ciudad in ciudades[1:]:
+                    filtro_ciudad |= Q(ciudad=ciudad)
+                QSaeropuerto = QSaeropuerto.filter(filtro_ciudad)
+
+            if paises:
+                filtro_pais = Q(pais=paises[0])
+                for pais in paises[1:]:
+                    filtro_pais |= Q(pais=pais)
+                QSaeropuerto = QSaeropuerto.filter(filtro_pais)
+
+            # Obtener resultados y serializar
+            aeropuerto = QSaeropuerto.all()
+            serializer = AeropuertoSerializer(aeropuerto, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['GET'])
+def Aerolinea_buscar_avanzado(request):
+    if len(request.query_params) > 0:
+
+        formulario = BusquedaAvanzadaAerolinea(request.query_params)
+
+        if formulario.is_valid():
+            QSaerolinea = Aerolinea.objects.prefetch_related(
+                            Prefetch('aeropuerto'),               # ManyToMany con Aeropuerto
+                            Prefetch('vuelo_aerolinea')           # ManyToMany con Vuelo
+                        )
+
+
+            # Obtener los filtros del formulario
+            nombre = formulario.cleaned_data.get('nombre')
+            codigo = formulario.cleaned_data.get('codigo')
+            fecha_fundacion = formulario.cleaned_data.get('fecha_fundacion')  # Lista de ciudades
+            pais = formulario.cleaned_data.get('pais')  # Lista de países
+
+            # Aplicar filtros dinámicamente
+            if nombre:
+                QSaerolinea = QSaerolinea.filter(nombre__icontains=nombre)
+
+            if codigo:
+                QSaerolinea = QSaerolinea.filter(codigo__icontains=codigo)
+
+            if fecha_fundacion:
+                QSaerolinea = QSaerolinea.filter(fecha_fundacion__gte=fecha_fundacion)
+
+            if pais:
+                QSaerolinea = QSaerolinea.filter(pais=pais)
+
+            # Obtener resultados y serializar
+            aeropuerto = QSaerolinea.all()
+            serializer = AerolineaSerializer(aeropuerto, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
     
+
+@api_view(['GET'])
+def Estadisticas_buscar_avanzado(request):
+    if len(request.query_params) > 0:
+
+        formulario = BusquedaAvanzadaEstadisticas(request.query_params)
+
+        if formulario.is_valid():
+            QSaerolinea = EstadisticasVuelo.objects.select_related('vuelo')
+
+
+            # Obtener los filtros del formulario
+            fecha_estadisticas = formulario.cleaned_data.get('fecha_estadisticas')
+            numero_asientos_vendidos = formulario.cleaned_data.get('numero_asientos_vendidos')
+            numero_cancelaciones = formulario.cleaned_data.get('numero_cancelaciones')  # Lista de ciudades
+            feedback_pasajeros = formulario.cleaned_data.get('feedback_pasajeros')  # Lista de países
+            
+            # Aplicar filtros dinámicamente
+            if fecha_estadisticas:
+                QSaerolinea = QSaerolinea.filter(fecha_estadisticas__gte=fecha_estadisticas) #Mayor o igual 
+
+            if numero_asientos_vendidos:
+                QSaerolinea = QSaerolinea.filter(numero_asientos_vendidos__lte=numero_asientos_vendidos) 
+            
+            if numero_cancelaciones:
+                QSaerolinea = QSaerolinea.filter(numero_cancelaciones__gte=numero_cancelaciones)#menor o igual
+
+            if feedback_pasajeros:
+                QSaerolinea = QSaerolinea.filter(feedback_pasajeros__icontains=feedback_pasajeros)
+
+
+            # Obtener resultados y serializar
+            esadisticas = QSaerolinea.all()
+            serializer = EstadisticasSerializer(esadisticas, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
