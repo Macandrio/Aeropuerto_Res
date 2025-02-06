@@ -107,17 +107,8 @@ def Aeropuerto_buscar(request):
 @api_view(['GET'])
 def Aeropuerto_buscar_avanzado(request):
     if len(request.query_params) > 0:
-        # Copiar los parámetros para modificar
-        data = request.query_params.copy()
 
-        # Convertir strings separados por comas en listas
-        if 'pais' in data:
-            data.setlist('pais', data.get('pais').split(','))  # Convierte a lista
-
-        if 'ciudades' in data:
-            data.setlist('ciudades', data.get('ciudades').split(','))  # Convierte a lista
-
-        formulario = BusquedaAvanzadaAeropuertoForm(data)
+        formulario = BusquedaAvanzadaAeropuertoForm(request.query_params)
 
         if formulario.is_valid():
             textoBusqueda = formulario.cleaned_data.get('textoBusqueda','')
@@ -130,8 +121,8 @@ def Aeropuerto_buscar_avanzado(request):
 
             # Obtener los filtros del formulario
             textoBusqueda = formulario.cleaned_data.get('textoBusqueda')
-            ciudades = formulario.cleaned_data.get('ciudades', [])  # Lista de ciudades
-            paises = formulario.cleaned_data.get('pais', [])  # Lista de países
+            ciudades = formulario.cleaned_data.get('ciudades')
+            paises = formulario.cleaned_data.get('pais')
 
             # Aplicar filtros dinámicamente
             if textoBusqueda:
@@ -140,8 +131,8 @@ def Aeropuerto_buscar_avanzado(request):
             if ciudades:
                 filtro_ciudad = Q(ciudad=ciudades[0])
                 for ciudad in ciudades[1:]:
-                    filtro_ciudad |= Q(ciudad=ciudad)
-                QSaeropuerto = QSaeropuerto.filter(filtro_ciudad)
+                    filtro_ciudad |= Q(ciudades=ciudad)
+                    QSaeropuerto = QSaeropuerto.filter(filtro_ciudad)
 
             if paises:
                 filtro_pais = Q(pais=paises[0])
