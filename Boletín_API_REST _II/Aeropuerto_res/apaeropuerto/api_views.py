@@ -129,7 +129,7 @@ def Aeropuerto_buscar_avanzado(request):
                 QSaeropuerto = QSaeropuerto.filter(nombre__icontains=textoBusqueda)
 
             if ciudades:
-                filtro_ciudad = Q(ciudad=ciudades[0])
+                filtro_ciudad = Q(ciudades=ciudades[0])
                 for ciudad in ciudades[1:]:
                     filtro_ciudad |= Q(ciudades=ciudad)
                     QSaeropuerto = QSaeropuerto.filter(filtro_ciudad)
@@ -201,7 +201,7 @@ def Estadisticas_buscar_avanzado(request):
         formulario = BusquedaAvanzadaEstadisticas(request.query_params)
 
         if formulario.is_valid():
-            QSaerolinea = EstadisticasVuelo.objects.select_related('vuelo')
+            QSestadisticas = EstadisticasVuelo.objects.select_related('vuelo')
 
 
             # Obtener los filtros del formulario
@@ -212,21 +212,57 @@ def Estadisticas_buscar_avanzado(request):
             
             # Aplicar filtros dinámicamente
             if fecha_estadisticas:
-                QSaerolinea = QSaerolinea.filter(fecha_estadisticas__gte=fecha_estadisticas) #Mayor o igual 
+                QSestadisticas = QSestadisticas.filter(fecha_estadisticas__gte=fecha_estadisticas) #Mayor o igual 
 
             if numero_asientos_vendidos:
-                QSaerolinea = QSaerolinea.filter(numero_asientos_vendidos__lte=numero_asientos_vendidos) 
+                QSestadisticas = QSestadisticas.filter(numero_asientos_vendidos__lte=numero_asientos_vendidos) 
             
             if numero_cancelaciones:
-                QSaerolinea = QSaerolinea.filter(numero_cancelaciones__gte=numero_cancelaciones)#menor o igual
+                QSestadisticas = QSestadisticas.filter(numero_cancelaciones__gte=numero_cancelaciones)#menor o igual
 
             if feedback_pasajeros:
-                QSaerolinea = QSaerolinea.filter(feedback_pasajeros__icontains=feedback_pasajeros)
+                QSestadisticas = QSestadisticas.filter(feedback_pasajeros__icontains=feedback_pasajeros)
 
 
             # Obtener resultados y serializar
-            esadisticas = QSaerolinea.all()
+            esadisticas = QSestadisticas.all()
             serializer = EstadisticasSerializer(esadisticas, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def Reservas_buscar_avanzado(request):
+    if len(request.query_params) > 0:
+
+        formulario = BusquedaAvanzadaReservaForm(request.query_params)
+
+        if formulario.is_valid():
+            QSreserva = Reserva.objects.select_related(
+                                'pasajero'                             
+                            )
+
+            # Obtener los filtros del formulario
+            metodo_pago = formulario.cleaned_data.get('metodo_pago')
+            fecha_reserva = formulario.cleaned_data.get('fecha_reserva')
+            estado_de_pago = formulario.cleaned_data.get('estado_de_pago')
+
+            # Aplicar filtros dinámicamente
+            if metodo_pago:
+                QSreserva = QSreserva.filter(metodo_pago=metodo_pago)
+
+            if fecha_reserva:
+                QSreserva = QSreserva.filter(fecha_reserva__gte=fecha_reserva) #Mayor o igual 
+
+            if estado_de_pago is not None:
+                QSreserva = QSreserva.filter(estado_de_pago=estado_de_pago) 
+
+            # Obtener resultados y serializar
+            reserva = QSreserva.all()
+            serializer = ReservaSerializer(reserva, many=True)
             return Response(serializer.data)
         else:
             return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)

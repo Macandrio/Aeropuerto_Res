@@ -19,4 +19,5 @@ urlpatterns = [
     path('Aeropuerto/busqueda_avanzada', Aeropuerto_buscar_avanzado),
     path('Aerolinea/busqueda_avanzada', Aerolinea_buscar_avanzado), 
     path('Estadisticas/busqueda_avanzada', Estadisticas_buscar_avanzado),  
+    path('Reservas/busqueda_avanzada', Reservas_buscar_avanzado),  
 ]

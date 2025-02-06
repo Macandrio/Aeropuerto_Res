@@ -132,12 +132,12 @@ class BusquedaAvanzadaAeropuertoForm(forms.Form):
            
         #Controlamos los campos
         #Ningún campo es obligatorio, pero al menos debe introducir un valor en alguno para buscar
-        if(textoBusqueda == "" and ciudades == "" and pais == ""):
-            self.add_error('textoBusqueda','Debe introducir al menos un campo en un campo del formulario')
-        else:
-            #Si introduce un texto al menos que tenga  1 caracteres o más
-            if(textoBusqueda != "" and len(textoBusqueda) < 2):
-                self.add_error('textoBusqueda','Debe introducir al menos 1 caracteres')
+        if(textoBusqueda == None and ciudades == [] and pais == []):
+            self.add_error('textoBusqueda','Debe introducir al menos un campo del formulario')
+            
+        #Si introduce un texto al menos que tenga  1 caracteres o más
+        if(textoBusqueda == None or len(textoBusqueda) < 0):
+             self.add_error('textoBusqueda','Debe introducir al menos 1 caracteres')
                     
         #Siempre devolvemos el conjunto de datos.
         return self.cleaned_data
@@ -301,7 +301,7 @@ class BusquedaAvanzadaEstadisticas(forms.Form):
         })
     )
 
-    feedback_pasajeros = forms.CharField()
+    feedback_pasajeros = forms.CharField(required=False,)
 
     vuelo = forms.ModelChoiceField(
         queryset=Vuelo.objects.all(),
@@ -372,17 +372,19 @@ class Aerolineaform(ModelForm):
         nombre =self.cleaned_data.get('nombre') 
         codigo_aerolinea = self.cleaned_data.get('codigo_aerolinea') 
 
+
         #Comprobamos que no exista un libro con ese nombre
         encontrar_aerolinea = Aeropuerto.objects.filter(nombre=nombre).first()
 
         if(encontrar_aerolinea):
             self.add_error('nombre','Ya existe una Aerolinea con ese nombre')
         
+        if(codigo_aerolinea == None and nombre == None):
+            self.add_error("nombre","Debe introducir un nombre o un codigo de aerolinea")
+
         if(nombre == ""):
             self.add_error("nombre","No puede dejar el campo vacio")
             
-        if(codigo_aerolinea == ""):
-            self.add_error("codigo_aerolinea","No puede dejar el campo vacio")
             
         return self.cleaned_data
 
@@ -689,7 +691,7 @@ class BusquedaAvanzadaReservaForm(forms.Form):
         })
     )
     metodo_pago = forms.ChoiceField(
-        choices=[('', 'Cualquiera')] + Reserva.METODO_PAGO_CHOICES,
+        choices=[('' , 'Elija uno metodo de pago'),] + Reserva.METODO_PAGO_CHOICES,
         required=False,
         widget=forms.Select(attrs={
             'class': 'form-control',
@@ -705,7 +707,9 @@ class BusquedaAvanzadaReservaForm(forms.Form):
     def clean(self):
         super().clean()
         # Al menos un campo debe completarse para que la búsqueda sea válida
-        if not any(self.cleaned_data.values()):
-            raise forms.ValidationError("Debe completar al menos un campo para buscar.")
+        metodo_pago = self.cleaned_data.get('metodo_pago')
+        
+        if (metodo_pago == ''):
+            self.add_error('metodo_pago','Debe intoducir un metodo de pago')
 
         return self.cleaned_data
