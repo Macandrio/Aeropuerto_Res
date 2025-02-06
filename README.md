@@ -402,27 +402,6 @@ Esta el usuario gerente que debe poder hace las estadisticas de vuelo.
 
 
 ---------------------------------------------------------------------------------------------------------------------------
-
-# Tema Api Rest I:
-
-* Configurar vuestra aplicación para que tenga una API REST y que sea accesible desde pythonanywhere.Enviar enlace de github(1 punto)
-
-* Crear una aplicación para que consulte vuestra API REST. Enviarme enlace github. (1 punto)
-
-* Crear una consulta sencilla al listado de vuestro modelo principal de la aplicación y mostrarla en vuestra aplicación cliente. (1 punto)
-
-* Crear una consulta mejorada al listado de vuestro modelo principal de la aplicación cliente. Debe ser una vista distinta a la anterior, con un template y url disntinta. (1 punto)
-
-* Añadir seguridad en OAUTH 2 a vuestra API REST. (1 punto)
-
-* Crear una variable de entorno, y añadir una clave para cada tipo de usuario que tengais en vuestra base de datos. Añadirlos en la variable de entorno. (Esta variable la tenéis que quitar del .gitignore, no es seguro, pero al estar en un entorno de aprendizaje, lo haremos asi)(1 punto)
-
-* Crear dos consultas mejorada a un listado de otro modelo de vuestra aplicación. (1.5 punto)
-
-* Incluir otro tipo de autenticación a vuestra aplicación por API e incluir una consulta mejorada a oto modelo que no se haya realizado antes. Explicar como se configura mediante un documento o presentacion(2.5 punto)
-
----------------------------------------------------------------------------------------------------------------------------
-
 # comandos :
 
 python3 -m venv myvenv
@@ -436,10 +415,8 @@ python manage.py migrate
 python manage.py makemigrations apaeropuerto
 python manage.py migrate apaeropuerto
 python manage.py seed apaeropuerto --number=20
-python manage.py dumpdata --indent 4 > apaeropuerto/fixtures/datos_sesiones.json
-python manage.py dumpdata auth.group auth.permission --indent 4 > apaeropuerto/fixtures/grupos_permisos.json
-
-python manage.py loaddata apaeropuerto/fixtures/datos_sesion.json
+python manage.py dumpdata --indent 4 > apaeropuerto/fixtures/datos_sesion.json
+python manage.py loaddata apaeropuerto/fixtures/datos.json
 
 python manage.py createsuperuser
 python manage.py runserver
@@ -455,9 +432,6 @@ python manage.py runserver 127.0.0.1:8081
 
 -----------------------------------------------------------------------------------
 from django.db.models import Prefetch
-
-
-------------------------------------------------------------------------------------
 
 # Aeropuerto
 Aeropuerto.objects.prefetch_related(
@@ -537,10 +511,3 @@ Empleado.objects.select_related(
     'servicio'                            # ManyToOne con Servicio
 )
 
-
-curl -X POST "http://0.0.0.0:8000/oauth2/token/" -d "grant_type=password&username=ale&password=ale&client_id=mi_aplicacion&client_secret=mi_clave_secreta"
-
-weafixJCm0ZurjQ8uKVMqNKGQfjCbm
-
-de usuraio = 1UMddlv1zukgr5UusiBaT5yGK9tMLl
-de gerente = qA2W2XXPWOTFfI84Mw2ej9jYPToLrz
