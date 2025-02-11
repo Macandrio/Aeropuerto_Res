@@ -70,7 +70,7 @@ def lista_vueloaerolinea(request):
     serializer = VueloAerolineaSerializer(vuelosaerolinea, many=True)
     return Response(serializer.data)
 
-#----------------------------------------------Formularios----------------------------------------------------------------
+#--------------------------------------Formularios_Buscar----------------------------------------------------------------
 
 #Obtener Aeropuertos por id
 @api_view(['GET']) 
@@ -102,7 +102,6 @@ def Aeropuerto_buscar(request):
         return Response(serializer.data)
     else:
         return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['GET'])
 def Aeropuerto_buscar_avanzado(request):
@@ -149,9 +148,6 @@ def Aeropuerto_buscar_avanzado(request):
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
 @api_view(['GET'])
 def Aerolinea_buscar_avanzado(request):
     if len(request.query_params) > 0:
@@ -193,7 +189,6 @@ def Aerolinea_buscar_avanzado(request):
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
     
-
 @api_view(['GET'])
 def Estadisticas_buscar_avanzado(request):
     if len(request.query_params) > 0:
@@ -233,7 +228,6 @@ def Estadisticas_buscar_avanzado(request):
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
     
-
 @api_view(['GET'])
 def Reservas_buscar_avanzado(request):
     if len(request.query_params) > 0:
@@ -268,3 +262,23 @@ def Reservas_buscar_avanzado(request):
             return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+#--------------------------------------Formularios_Crear----------------------------------------------------------------
+
+@api_view(['POST'])
+def Aeropuerto_create(request): 
+    print(request.data)
+    aeropuertoCreateSerializer = AeropuertoSerializerCreate(data=request.data)
+    if aeropuertoCreateSerializer.is_valid():
+        try:
+            aeropuertoCreateSerializer.save()
+            return Response("Libro CREADO")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(aeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

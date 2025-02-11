@@ -74,20 +74,26 @@ class AeropuertoForm(ModelForm):
             super().clean()
             
             nombre = self.cleaned_data.get('nombre') 
-            capacidad_maxima = self.cleaned_data.get('capacidad_maxima') 
+            capacidad_maxima = self.cleaned_data.get('capacidad_maxima')
+            ciudad =   self.cleaned_data.get('ciudades')
+            pais =   self.cleaned_data.get('paises')
             
             #Comprobamos que no exista un libro con ese nombre
             encontrar_aeropuerto = Aeropuerto.objects.filter(nombre=nombre).first()
 
             if(not encontrar_aeropuerto is None):
              if(not self.instance is None and encontrar_aeropuerto.id == self.instance.id):
-                 pass
+                pass
              else:
                 self.add_error('nombre','Ya existe un Aeropuerto con ese nombre')
 
 
-            if(nombre == " "):
+            if(nombre == ""):
                 self.add_error("nombre","El nombre del aeropuerto no puede estar vacio")
+            
+            if(ciudad == "" and pais == ""):
+                self.add_error("ciudad","Tienes que elegir una ciudad")
+                self.add_error("pais","Tienes que elegir un pais")
                 
             if(capacidad_maxima > 150):
                 self.add_error("capacidad_maxima","No puede haber mas de 150 mil personas")
