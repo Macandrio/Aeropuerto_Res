@@ -268,12 +268,12 @@ def Reservas_buscar_avanzado(request):
 
 @api_view(['POST'])
 def Aeropuerto_create(request): 
-    print(request.data)
     aeropuertoCreateSerializer = AeropuertoSerializerCreate(data=request.data)
+
     if aeropuertoCreateSerializer.is_valid():
         try:
             aeropuertoCreateSerializer.save()
-            return Response("Libro CREADO")
+            return Response("Aeropuerto Creado")
         
         except serializers.ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
@@ -281,4 +281,5 @@ def Aeropuerto_create(request):
             print(repr(error))
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
+        print("❌ Errores de validación:", aeropuertoCreateSerializer.errors)
         return Response(aeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

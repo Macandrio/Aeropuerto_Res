@@ -24,5 +24,5 @@ urlpatterns = [
     path('Reservas/busqueda_avanzada', Reservas_buscar_avanzado),
 
     #Crear
-    path('Aeropuerto/Create', Aeropuerto_create),
+    path('Aeropuerto/Crear', Aeropuerto_create),
 ]

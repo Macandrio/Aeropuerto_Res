@@ -109,41 +109,46 @@ class EstadisticasSerializer(serializers.ModelSerializer):
 
 
 
-class AeropuertoSerializerCreate(serializers.ModelSerializer):
+class  AeropuertoSerializerCreate(serializers.ModelSerializer):
+    
+    PAISES_OPCIONES = [("", "Ninguno")] + Aeropuerto.PAISES
+
+    pais = serializers.ChoiceField(choices=PAISES_OPCIONES)
+
+    CIUDADES_OPCIONES = [("", "Ninguno")] + Aeropuerto.CIUDADES
+
+    ciudades = serializers.ChoiceField(choices=CIUDADES_OPCIONES)
+
     class Meta:
         model = Aeropuerto
         fields = '__all__'
 
-        nombre = serializers.CharField()
-        ciudad = serializers.ChoiceField(choices=Aeropuerto.CIUDADES)
-        pais = serializers.ChoiceField(choices=Aeropuerto.PAISES)
-        capacidad_maxima = serializers.IntegerField()
 
-        def validate_nombre(self,nombre):
-            nombre = Aeropuerto.objects.filter(nombre=nombre).first()
+    def validate_nombre(self,nombre):
+        existe_nombre = Aeropuerto.objects.filter(nombre=nombre).first()
 
-            if(not nombre is None):
-                if(not self.instance is None and nombre.id == self.instance.id):
-                    pass
-                else:
-                    raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
+        if(not existe_nombre is None):
+            if(not self.instance is None and existe_nombre.id == self.instance.id):
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
 
-                if len(nombre) == "":
-                    raise serializers.ValidationError('Al menos debes indicar 1 caracteres')            
+            if len(nombre) < 0:
+                raise serializers.ValidationError('Al menos debes indicar 1 caracteres')            
             
-            return nombre
-        
-        def validate_ciudad(self,ciudad):
-            if len(ciudad) == "":
-                raise serializers.ValidationError('Debes seleccionar una ciudad')
-            return ciudad
-        
-        def validate_pais(self,pais):
-            if len(pais) == "":
-                raise serializers.ValidationError('Debes seleccionar un pais')
-            return pais
-        
-        def validate_capacidad_max(self,capacidad_maxima):
-            if len(capacidad_maxima) < 150:
-                raise serializers.ValidationError('Debes tener una capacidad de 150 pasajeros')
-            return capacidad_maxima
+        return nombre
+    
+    def validate_ciudades(self,ciudades):
+        if ciudades == "":
+            raise serializers.ValidationError('Debes seleccionar una ciudad')
+        return ciudades
+    
+    def validate_pais(self,pais):
+        if pais == "":
+            raise serializers.ValidationError('Debes seleccionar un pais')
+        return pais
+    
+    def validate_capacidad_maxima(self,capacidad_maxima):
+        if capacidad_maxima < 150:
+            raise serializers.ValidationError('Debes tener una capacidad de 150 pasajeros como minimo')
+        return capacidad_maxima
