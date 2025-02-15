@@ -320,3 +320,15 @@ def Aeropuerto_actualizar_nombre(request,aeropuerto_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#--------------------------------------Formularios_Eliminar----------------------------------------------------------------
+
+@api_view(['DELETE'])
+def Aeropuerto_eliminar(request,aeropuerto_id):
+    aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
+    try:
+        aeropuerto.delete()
+        return Response("Aeropuerto ELIMINADO")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
