@@ -280,6 +280,16 @@ def Aeropuertos_obtener(request):
     serializer = AeropuertoSerializer(aeropuerto, many=True)  # ✅ Se añade many=True para manejar una lista
     return Response(serializer.data)
 
+
+#Obtener Aerolinea por id
+@api_view(['GET']) 
+def Aerolinea_obtener(request,aerolinea_id):
+    aerolinea = Aerolinea.objects.prefetch_related(
+                    Prefetch('aeropuerto'),               # ManyToMany con Aeropuerto
+                    Prefetch('vuelo_aerolinea')           # ManyToMany con Vuelo
+                ).get(id=aerolinea_id)
+    serializer = AerolineaSerializer(aerolinea)
+    return Response(serializer.data)
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
 @api_view(['POST'])
@@ -337,7 +347,24 @@ def Aeropuerto_editar(request,aeropuerto_id):
     else:
         return Response(AeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+@api_view(['PUT'])
+def Aerolinea_editar(request,aerolinea_id):
+    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+    aerolinea = Aerolinea.objects.get(id=aerolinea_id)
+    AerolineaCreateSerializer = AerolineaSerializerCreate(data=request.data,instance=aerolinea)
+    if AerolineaCreateSerializer.is_valid():
+        try:
+            AerolineaCreateSerializer.save()
+            #return Response({"mensaje": "✅ Aeropuerto editado correctamente."}, status=status.HTTP_200_OK)
+            return Response("Aerolinea EDITADO")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(AerolineaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #--------------------------------------Formularios_Actualizar----------------------------------------------------------------
 
 @api_view(['PATCH'])

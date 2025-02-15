@@ -191,7 +191,7 @@ class  AerolineaSerializerCreate(serializers.ModelSerializer):
         return pais
     
     def validate_aeropuerto(self,aeropuerto): 
-        if aeropuerto == "":
+        if len(aeropuerto) < 1:
             raise serializers.ValidationError('Debe seleccionar al menos un Aeropuerto')
         return aeropuerto
 
