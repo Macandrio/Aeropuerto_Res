@@ -38,8 +38,10 @@ urlpatterns = [
 
     # Actualizar
     path('Aeropuerto/actualizar/nombre/<int:aeropuerto_id>',Aeropuerto_actualizar_nombre),
+    path('Aerolinea/actualizar/nombre/<int:aerolinea_id>',Aerolinea_actualizar_nombre),
 
     # Eliminar
     path('Aeropuerto/eliminar/<int:aeropuerto_id>',Aeropuerto_eliminar),
+    path('Aerolinea/eliminar/<int:aerolinea_id>',Aerolinea_eliminar),
     
 ]

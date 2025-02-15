@@ -374,12 +374,27 @@ def Aeropuerto_actualizar_nombre(request,aeropuerto_id):
     if serializers.is_valid():
         try:
             serializers.save()
-            return Response("Aeropuerto EDITADO")
+            return Response("Aeropuerto Actualizada")
         except Exception as error:
             print(repr(error))
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])    
+def Aerolinea_actualizar_nombre(request,aerolinea_id):
+    aerolinea = Aerolinea.objects.get(id=aerolinea_id)
+    serializers = AerolineaSerializerActualizarNombre(data=request.data,instance=aerolinea)
+    if serializers.is_valid():
+        try:
+            serializers.save()
+            return Response("Aerolinea Actualizada")
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 #--------------------------------------Formularios_Eliminar----------------------------------------------------------------
@@ -390,5 +405,14 @@ def Aeropuerto_eliminar(request,aeropuerto_id):
     try:
         aeropuerto.delete()
         return Response("Aeropuerto ELIMINADO")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['DELETE'])
+def Aerolinea_eliminar(request,aerolinea_id):
+    aerolinea = Aerolinea.objects.get(id=aerolinea_id)
+    try:
+        aerolinea.delete()
+        return Response("Aerolinea ELIMINADA")
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

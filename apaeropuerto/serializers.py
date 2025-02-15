@@ -197,7 +197,7 @@ class  AerolineaSerializerCreate(serializers.ModelSerializer):
 
 #---------------------------------------------------------Actualizar--------------------------------------------------------------------------------
 
-#Aeropuerto
+# Aeropuerto
 
 class AeropuertoSerializerActualizarNombre(serializers.ModelSerializer):
  
@@ -207,6 +207,19 @@ class AeropuertoSerializerActualizarNombre(serializers.ModelSerializer):
     
     def validate_nombre(self,nombre):
         Nombre = Aeropuerto.objects.filter(nombre=nombre).first()
+        if(not Nombre is None and Nombre.id != self.instance.id):
+            raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
+        return nombre
+    
+# Aerolinea
+class AerolineaSerializerActualizarNombre(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = Aerolinea
+        fields = ['nombre']
+    
+    def validate_nombre(self,nombre):
+        Nombre = Aerolinea.objects.filter(nombre=nombre).first()
         if(not Nombre is None and Nombre.id != self.instance.id):
             raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
         return nombre
