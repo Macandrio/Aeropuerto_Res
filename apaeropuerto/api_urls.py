@@ -13,10 +13,11 @@ urlpatterns = [
 
 
 
-    # Formularios 
+    # Formularios
+    #Obtener
+    path('Aeropuerto/', Aeropuertos_obtener), 
 
     # Buscar
-    path('Aeropuerto/<int:aeropuerto_id>', Aeropuerto_obtener),
     path('Aeropuerto/busqueda_simple', Aeropuerto_buscar),
     path('Aeropuerto/busqueda_avanzada', Aeropuerto_buscar_avanzado),
     path('Aerolinea/busqueda_avanzada', Aerolinea_buscar_avanzado), 
@@ -25,6 +26,7 @@ urlpatterns = [
 
     # Crear
     path('Aeropuerto/Crear', Aeropuerto_create),
+    path('Aerolinea/Crear', Aerolinea_create),
 
 
     # Editar

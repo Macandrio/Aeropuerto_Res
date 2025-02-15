@@ -72,19 +72,6 @@ def lista_vueloaerolinea(request):
 
 #--------------------------------------Formularios_Buscar----------------------------------------------------------------
 
-#Obtener Aeropuertos por id
-@api_view(['GET']) 
-def Aeropuerto_obtener(request,aeropuerto_id):
-    aeropuerto = Aeropuerto.objects.prefetch_related(
-    Prefetch('contacto_de_aeropuerto'),
-    Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
-    Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
-    Prefetch('vuelos_de_destino'),        # ManyToOne reversa con Vuelo (destino)
-    Prefetch('servicio_aeropuerto')       # ManyToMany con Servicio
-).get(id=aeropuerto_id)
-    serializer = AeropuertoSerializer(aeropuerto)
-    return Response(serializer.data)
-
 #Aeropuerto Buscar
 @api_view(['GET'])
 def Aeropuerto_buscar(request):
@@ -262,7 +249,36 @@ def Reservas_buscar_avanzado(request):
             return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+#--------------------------------------Formularios_Obtener----------------------------------------------------------------
+
+#Obtener Aeropuertos por id
+@api_view(['GET']) 
+def Aeropuerto_obtener(request,aeropuerto_id):
+    aeropuerto = Aeropuerto.objects.prefetch_related(
+    Prefetch('contacto_de_aeropuerto'),
+    Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
+    Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
+    Prefetch('vuelos_de_destino'),        # ManyToOne reversa con Vuelo (destino)
+    Prefetch('servicio_aeropuerto')       # ManyToMany con Servicio
+).get(id=aeropuerto_id)
+    serializer = AeropuertoSerializer(aeropuerto)
+    return Response(serializer.data)
+
+
+#Obtener Aeropuertos
+@api_view(['GET']) 
+def Aeropuertos_obtener(request):
+    aeropuerto = Aeropuerto.objects.prefetch_related(
+    Prefetch('contacto_de_aeropuerto'),
+    Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
+    Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
+    Prefetch('vuelos_de_destino'),        # ManyToOne reversa con Vuelo (destino)
+    Prefetch('servicio_aeropuerto')       # ManyToMany con Servicio
+)
+    serializer = AeropuertoSerializer(aeropuerto, many=True)  # ✅ Se añade many=True para manejar una lista
+    return Response(serializer.data)
 
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
@@ -284,6 +300,23 @@ def Aeropuerto_create(request):
         print("❌ Errores de validación:", aeropuertoCreateSerializer.errors)
         return Response(aeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def Aerolinea_create(request): 
+    aerolineaCreateSerializer = AerolineaSerializerCreate(data=request.data)
+
+    if aerolineaCreateSerializer.is_valid():
+        try:
+            aerolineaCreateSerializer.save()
+            return Response("Aerolinea Creado")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        print("❌ Errores de validación:", aerolineaCreateSerializer.errors)
+        return Response(aerolineaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #--------------------------------------Formularios_Editar----------------------------------------------------------------
 

@@ -159,6 +159,41 @@ class  AeropuertoSerializerCreate(serializers.ModelSerializer):
             raise serializers.ValidationError('Debes tener una capacidad de 150 pasajeros como minimo')
         return capacidad_maxima
     
+# Aerolinea
+class  AerolineaSerializerCreate(serializers.ModelSerializer):
+    
+    PAISES_OPCIONES = [("", "Ninguno")] + Aerolinea.paises
+
+    pais = serializers.ChoiceField(choices=PAISES_OPCIONES)
+
+    class Meta:
+        model = Aerolinea
+        fields = '__all__'
+
+
+    def validate_nombre(self,nombre):
+        existe_nombre = Aerolinea.objects.filter(nombre=nombre).first()
+
+        if(not existe_nombre is None):
+            if(not self.instance is None and existe_nombre.id == self.instance.id):
+                pass
+            else:
+                raise serializers.ValidationError('Ya existe un Aerolinea con ese nombre')
+
+            if len(nombre) < 0:
+                raise serializers.ValidationError('Al menos debes indicar 1 caracteres')            
+            
+        return nombre
+    
+    def validate_pais(self,pais):
+        if pais == "":
+            raise serializers.ValidationError('Debes seleccionar un pais')
+        return pais
+    
+    def validate_aeropuerto(self,aeropuerto): 
+        if aeropuerto == "":
+            raise serializers.ValidationError('Debe seleccionar al menos un Aeropuerto')
+        return aeropuerto
 
 #---------------------------------------------------------Actualizar--------------------------------------------------------------------------------
 
