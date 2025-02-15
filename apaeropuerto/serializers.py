@@ -2,6 +2,9 @@ from rest_framework import serializers
 from .models import *
 from .forms import *
 
+
+#---------------------------------------------------------Modelos--------------------------------------------------------------------------------
+
 #clase Aeropuerto
 
 class AeropuertoSerializer(serializers.ModelSerializer):
@@ -101,6 +104,7 @@ class VueloAerolineaSerializer(serializers.ModelSerializer):
         model = VueloAerolinea
 
 
+# clase Estadisticas
 class EstadisticasSerializer(serializers.ModelSerializer):
     class Meta:
         model = EstadisticasVuelo
@@ -108,7 +112,9 @@ class EstadisticasSerializer(serializers.ModelSerializer):
 
 
 
+#---------------------------------------------------------Crear--------------------------------------------------------------------------------
 
+# Aeropuerto
 class  AeropuertoSerializerCreate(serializers.ModelSerializer):
     
     PAISES_OPCIONES = [("", "Ninguno")] + Aeropuerto.PAISES
@@ -152,3 +158,20 @@ class  AeropuertoSerializerCreate(serializers.ModelSerializer):
         if capacidad_maxima < 150:
             raise serializers.ValidationError('Debes tener una capacidad de 150 pasajeros como minimo')
         return capacidad_maxima
+    
+
+#---------------------------------------------------------Actualizar--------------------------------------------------------------------------------
+
+#Aeropuerto
+
+class AeropuertoSerializerActualizarNombre(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = Aeropuerto
+        fields = ['nombre']
+    
+    def validate_nombre(self,nombre):
+        Nombre = Aeropuerto.objects.filter(nombre=nombre).first()
+        if(not Nombre is None and Nombre.id != self.instance.id):
+            raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
+        return nombre

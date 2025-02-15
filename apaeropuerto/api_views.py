@@ -76,12 +76,12 @@ def lista_vueloaerolinea(request):
 @api_view(['GET']) 
 def Aeropuerto_obtener(request,aeropuerto_id):
     aeropuerto = Aeropuerto.objects.prefetch_related(
+    Prefetch('contacto_de_aeropuerto'),
     Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
     Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
     Prefetch('vuelos_de_destino'),        # ManyToOne reversa con Vuelo (destino)
     Prefetch('servicio_aeropuerto')       # ManyToMany con Servicio
-)
-    aeropuerto = Aeropuerto.get(id=aeropuerto_id)
+).get(id=aeropuerto_id)
     serializer = AeropuertoSerializer(aeropuerto)
     return Response(serializer.data)
 
@@ -283,3 +283,40 @@ def Aeropuerto_create(request):
     else:
         print("❌ Errores de validación:", aeropuertoCreateSerializer.errors)
         return Response(aeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#--------------------------------------Formularios_Editar----------------------------------------------------------------
+
+@api_view(['PUT'])
+def Aeropuerto_editar(request,aeropuerto_id):
+    aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
+    AeropuertoCreateSerializer = AeropuertoSerializerCreate(data=request.data,instance=aeropuerto)
+    if AeropuertoCreateSerializer.is_valid():
+        try:
+            AeropuertoCreateSerializer.save()
+            #return Response({"mensaje": "✅ Aeropuerto editado correctamente."}, status=status.HTTP_200_OK)
+            return Response("Aeropuerto EDITADO")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(AeropuertoCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+#--------------------------------------Formularios_Actualizar----------------------------------------------------------------
+
+@api_view(['PATCH'])
+def Aeropuerto_actualizar_nombre(request,aeropuerto_id):
+    aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
+    serializers = AeropuertoSerializerActualizarNombre(data=request.data,instance=aeropuerto)
+    if serializers.is_valid():
+        try:
+            serializers.save()
+            return Response("Aeropuerto EDITADO")
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)

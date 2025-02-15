@@ -75,7 +75,7 @@ class ContactoAeropuerto(models.Model):
     email_contacto = models.EmailField(blank=True)
     años_trabajados = models.IntegerField(verbose_name="Años Trabajado", default=0)
 
-    aeropuerto = models.OneToOneField(Aeropuerto, on_delete=models.CASCADE) #OneToOne
+    aeropuerto = models.OneToOneField(Aeropuerto, on_delete=models.CASCADE, related_name='contacto_de_aeropuerto') #OneToOne
 
     def __str__(self):
         return f"Contacto de {self.aeropuerto.nombre}"

@@ -25,4 +25,13 @@ urlpatterns = [
 
     #Crear
     path('Aeropuerto/Crear', Aeropuerto_create),
+
+
+    #Editar
+    path('Aeropuerto/editar/<int:aeropuerto_id>', Aeropuerto_editar),
+
+
+    #Actualizar
+    path('Aeropuerto/actualizar/nombre/<int:aeropuerto_id>',Aeropuerto_actualizar_nombre),
+
 ]
