@@ -54,7 +54,8 @@ def lista_vuelo(request):
 def lista_reserva(request):
     
     reserva = Reserva.objects.select_related(
-    'pasajero',                           # ManyToOne con Pasajero
+    'pasajero',
+    'vuelo'
 )
     serializer = ReservaSerializer(reserva, many=True)
     return Response(serializer.data)
@@ -223,7 +224,8 @@ def Reservas_buscar_avanzado(request):
 
         if formulario.is_valid():
             QSreserva = Reserva.objects.select_related(
-                                'pasajero'                             
+                                'pasajero',
+                                'vuelo'                             
                             )
 
             # Obtener los filtros del formulario
@@ -325,6 +327,16 @@ def Vuelo_obtener(request):
     serializer = VueloSerializer(vuelo, many=True)  # ✅ Se añade many=True para manejar una lista
     return Response(serializer.data)
 
+#Obtener Reserva
+@api_view(['GET']) 
+def Reserva_obtener(request,reserva_id):
+    reserva = Reserva.objects.select_related(
+    'pasajero',
+    'vuelo'
+).get(id=reserva_id)
+    serializer = ReservaSerializer(reserva) 
+    return Response(serializer.data)
+
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
 @api_view(['POST'])
@@ -417,6 +429,23 @@ def Aerolinea_editar(request,aerolinea_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(AerolineaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def Reserva_editar(request,reserva_id):
+    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+    reserva = Reserva.objects.get(id=reserva_id)
+    ReservaCreateSerializer = ReservaSerializerCreate(data=request.data,instance=reserva)
+    if ReservaCreateSerializer.is_valid():
+        try:
+            ReservaCreateSerializer.save()
+            return Response("Reserva EDITADO")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(ReservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 #--------------------------------------Formularios_Actualizar----------------------------------------------------------------
 

@@ -71,6 +71,7 @@ class ReservaSerializer(serializers.ModelSerializer):
     metodo_pago = serializers.ChoiceField(choices=Reserva.METODO_PAGO_CHOICES)
     estado_de_pago = serializers.BooleanField()
     pasajero = PasajeroSerializer()
+    vuelo =VueloSerializer()
 
     class Meta:
         fields = ('id',
@@ -79,6 +80,7 @@ class ReservaSerializer(serializers.ModelSerializer):
                   'metodo_pago',
                   'estado_de_pago',
                   'pasajero',
+                  'vuelo'
                   )
         model = Reserva
 
@@ -212,7 +214,7 @@ class  ReservaSerializerCreate(serializers.ModelSerializer):
         return metodo_pago
     
     def validate_codigo_descueto(self,codigo_descueto): 
-        if len(codigo_descueto) < 1:
+        if len(codigo_descueto) < 2:
             raise serializers.ValidationError('Debe tener al menos 1 caracter')
         return codigo_descueto
     
