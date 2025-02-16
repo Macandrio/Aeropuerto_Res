@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from .forms import *
+import datetime
 
 
 #---------------------------------------------------------Modelos--------------------------------------------------------------------------------
@@ -110,8 +111,6 @@ class EstadisticasSerializer(serializers.ModelSerializer):
         model = EstadisticasVuelo
         fields = '__all__'
 
-
-
 #---------------------------------------------------------Crear--------------------------------------------------------------------------------
 
 # Aeropuerto
@@ -195,6 +194,34 @@ class  AerolineaSerializerCreate(serializers.ModelSerializer):
             raise serializers.ValidationError('Debe seleccionar al menos un Aeropuerto')
         return aeropuerto
 
+# Reserva
+class  ReservaSerializerCreate(serializers.ModelSerializer):
+    
+    PAGO_OPCIONES = [("", "Ninguno")] + Reserva.METODO_PAGO_CHOICES
+
+    metodo_pago = serializers.ChoiceField(choices=PAGO_OPCIONES)
+
+    class Meta:
+        model = Reserva
+        fields = '__all__'
+
+    
+    def validate_metodo_pago(self,metodo_pago):
+        if metodo_pago == "":
+            raise serializers.ValidationError('Debes seleccionar un metodo de pago')
+        return metodo_pago
+    
+    def validate_codigo_descueto(self,codigo_descueto): 
+        if len(codigo_descueto) < 1:
+            raise serializers.ValidationError('Debe tener al menos 1 caracter')
+        return codigo_descueto
+    
+    def validate_fecha_reserva(self,fecha_reserva):
+        hoy = datetime.datetime.now()
+        if fecha_reserva < hoy:
+            raise serializers.ValidationError("La fecha de reserva no puede ser anterior a la fecha actual.")
+        return fecha_reserva
+    
 #---------------------------------------------------------Actualizar--------------------------------------------------------------------------------
 
 # Aeropuerto

@@ -290,6 +290,41 @@ def Aerolinea_obtener(request,aerolinea_id):
                 ).get(id=aerolinea_id)
     serializer = AerolineaSerializer(aerolinea)
     return Response(serializer.data)
+
+#Obtener Pasajeros
+@api_view(['GET']) 
+def Pasajeros_obtener(request):
+    pasjero = Pasajero.objects.prefetch_related(
+    Prefetch('vuelo'),                    # ManyToMany con Vuelo
+    Prefetch('equipaje_pasajero'),        # ManyToOne con Equipaje
+    Prefetch('reserva_pasajero'),         # ManyToOne con Reserva
+    Prefetch('pajarelo_asiento'),         # ManyToOne con Asiento
+).select_related('usuario')
+    serializer = PasajeroSerializer(pasjero, many=True)  # ✅ Se añade many=True para manejar una lista
+    return Response(serializer.data)
+
+#Obtener Usuario por id
+@api_view(['GET']) 
+def Usuario_obtener(request,usuario_id):
+    usuario = Usuario.objects.all().get(id=usuario_id)
+    serializer = UsuarioSerializer(usuario)
+    return Response(serializer.data)
+
+#Obtener Pasajeros
+@api_view(['GET']) 
+def Vuelo_obtener(request):
+    vuelo = Vuelo.objects.prefetch_related(
+    Prefetch('vuelo_pasajero'),           # ManyToMany con Pasajero
+    Prefetch('asiento_vuelo'),            # ManyToOne con Asiento
+    Prefetch('vuelo_media_aerolinea'),    # ManyToOne con VueloAerolinea
+    Prefetch('vuelo_datos')               # OneToOne con EstadisticasVuelo
+).select_related(
+    'origen',                             # ManyToOne con Aeropuerto (origen)
+    'destino'                             # ManyToOne con Aeropuerto (destino)
+)
+    serializer = VueloSerializer(vuelo, many=True)  # ✅ Se añade many=True para manejar una lista
+    return Response(serializer.data)
+
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
 @api_view(['POST'])
@@ -327,6 +362,24 @@ def Aerolinea_create(request):
     else:
         print("❌ Errores de validación:", aerolineaCreateSerializer.errors)
         return Response(aerolineaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def Reserva_create(request): 
+    reservaCreateSerializer = ReservaSerializerCreate(data=request.data)
+
+    if reservaCreateSerializer.is_valid():
+        try:
+            reservaCreateSerializer.save()
+            return Response("Reserva Creado")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        print("❌ Errores de validación:", reservaCreateSerializer.errors)
+        return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #--------------------------------------Formularios_Editar----------------------------------------------------------------
 
