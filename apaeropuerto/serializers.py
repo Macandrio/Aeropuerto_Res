@@ -223,6 +223,91 @@ class  ReservaSerializerCreate(serializers.ModelSerializer):
         if fecha_reserva < hoy:
             raise serializers.ValidationError("La fecha de reserva no puede ser anterior a la fecha actual.")
         return fecha_reserva
+
+# Vuelo Aerolineas
+class  VueloAerolineasSerializerCreate(serializers.ModelSerializer):
+
+    class Meta:
+        model = VueloAerolinea
+        fields = ['fecha_operacion','estado','clase','incidencias','vuelo','aerolinea']
+
+    
+    def validate_clase(self,clase):
+        if clase == "":
+            raise serializers.ValidationError('Debes seleccionar una Clase')
+        return clase
+    
+    def validate_estado(self,estado): 
+        if len(estado) < 2:
+            raise serializers.ValidationError('Debe tener al menos 1 caracter')
+        return estado
+    
+    def validate_incidencias(self,incidencias): 
+        if len(incidencias) < 2:
+            raise serializers.ValidationError('Debe tener al menos 1 caracter')
+        return incidencias
+
+    def validate_fecha_operacion(self, fecha_operacion):
+        fechaHoy = datetime.datetime.now()
+
+        if fechaHoy < fecha_operacion:
+            raise serializers.ValidationError('La fecha de Opercion debe ser menor a Hoy')
+        return fecha_operacion
+    
+    def validar_vuelo(self, vuelo):
+        if len(vuelo) < 1:
+            raise serializers.ValidationError('Debe seleccionar al menos un vuelo')
+        return vuelo
+    
+    def create(self, validated_data):
+        aerolineas = self.initial_data("aerolinea")  # 🛠️ Extraer IDs de aerolíneas
+
+        if len(aerolineas)<2:
+            raise serializers.ValidationError({"aerolinea": ["Debe seleccionar al menos dos aerolínea"]})
+        
+        vueloaerolinea = VueloAerolinea.objects.create(
+            fecha_operacion = validated_data['fecha_operacion'],
+            estado = validated_data['estado'],
+            clase = validated_data['clase'],
+            incidencias = validated_data['incidencias'],
+        )
+        vueloaerolinea.vuelo.set(validated_data["vuelo"])
+
+        for aerolinea in aerolineas:
+            modeloaerolinea = aerolinea.objects.get(id=aerolinea)
+            Aerolinea.objects.create(aerolinea=modeloaerolinea,vueloaerolinea=vueloaerolinea)
+        return vueloaerolinea
+    
+    def update(self, instance, validated_data):
+        vuelos = self.initial_data.get("vuelo", [])  # 🛠️ Extrae IDs de vuelos
+        aerolineas = self.initial_data.get("aerolinea", [])  # 🛠️ Extrae IDs de aerolíneas
+
+        # ❌ Valida que al menos haya un vuelo y una aerolínea
+        if len(vuelos) < 1:
+            raise serializers.ValidationError(
+                {'vuelo': ['Debe seleccionar al menos un vuelo']}
+            )
+        if len(aerolineas) < 1:
+            raise serializers.ValidationError(
+                {'aerolinea': ['Debe seleccionar al menos una aerolínea']}
+            )
+
+        # ✅ Actualiza los campos normales
+        instance.fecha_operacion = validated_data.get("fecha_operacion", instance.fecha_operacion)
+        instance.estado = validated_data.get("estado", instance.estado)
+        instance.incidencias = validated_data.get("incidencias", instance.incidencias)
+        instance.clase = validated_data.get("clase", instance.clase)
+        instance.save()
+
+        # ✅ Asigna relaciones ManyToMany correctamente
+        instance.vuelo.set(vuelos)  # Asigna nuevos vuelos
+        instance.aerolinea.set(aerolineas)  # Asigna nuevas aerolíneas
+
+        return instance
+
+
+        
+
     
 #---------------------------------------------------------Actualizar--------------------------------------------------------------------------------
 

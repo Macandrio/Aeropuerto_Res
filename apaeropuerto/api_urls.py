@@ -19,6 +19,7 @@ urlpatterns = [
     path('Aeropuerto/', Aeropuertos_obtener),
     path('Aeropuerto/<int:aeropuerto_id>', Aeropuerto_obtener),  
     path('Aerolinea/<int:aerolinea_id>', Aerolinea_obtener),
+    path('Aerolineas/', Aerolinea_obtener),
     path('Pasajeros/', Pasajeros_obtener),
     path('Usuario/<int:usuario_id>', Usuario_obtener),
     path('Vuelos/', Vuelo_obtener),
@@ -30,11 +31,13 @@ urlpatterns = [
     path('Aerolinea/busqueda_avanzada', Aerolinea_buscar_avanzado), 
     path('Estadisticas/busqueda_avanzada', Estadisticas_buscar_avanzado),  
     path('Reservas/busqueda_avanzada', Reservas_buscar_avanzado),
+    path('VueloAerolinea/busqueda_avanzada', VueloAerolinea_buscar_avanzado),
 
     # Crear
     path('Aeropuerto/Crear', Aeropuerto_create),
     path('Aerolinea/Crear', Aerolinea_create),
     path('Reserva/Crear', Reserva_create),
+    path('VueloAerolinea/Crear', VueloAerolinea_create),
 
 
     # Editar

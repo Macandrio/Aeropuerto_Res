@@ -719,3 +719,58 @@ class BusquedaAvanzadaReservaForm(forms.Form):
             self.add_error('metodo_pago','Debe intoducir un metodo de pago')
 
         return self.cleaned_data
+    
+#------------------------------------------------------------VuelosAerolinea---------------------------------------------------------------------------------------
+
+
+class BusquedaAvanzadaVuelosAerolineaForm(forms.Form):
+    
+    clase = forms.ChoiceField(
+        choices=[('' , 'Ninguno'),] + VueloAerolinea.tipos_clase_avion,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+        })
+    )
+
+    estado = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'En que estado esat el avion',
+            'class': 'form-control',
+        })
+    )
+
+    incidencias = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Incidencia del Aeropuerto',
+            'class': 'form-control',
+        })
+    )
+
+    fecha_operacion = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Selecciona fecha y hora...',
+            'type': 'datetime-local'  # Campo para fecha y hora
+        })
+    )
+    
+
+    def clean(self):
+        super().clean()
+        # Al menos un campo debe completarse para que la búsqueda sea válida
+        clase = self.cleaned_data.get('clase')
+        incidencias = self.cleaned_data.get('incidencias')
+        estado = self.cleaned_data.get('estado')
+        
+        if (clase == ''):
+            self.add_error('clase','Debe intoducir un metodo de pago')
+        
+        if (len(incidencias) < 1):
+            self.add_error('incidencias','Debe intoducir mas de un caracter')
+        
+        if (len(estado) < 1):
+            self.add_error('estado','Debe intoducir mas de un caracter')

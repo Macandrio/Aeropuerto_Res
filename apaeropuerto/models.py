@@ -184,8 +184,8 @@ class VueloAerolinea(models.Model):
     clase = models.CharField(max_length=1,choices=tipos_clase_avion, default='E')
     incidencias = models.CharField(max_length=100)
 
-    vuelo = models.ForeignKey(Vuelo, on_delete=models.CASCADE, related_name='vuelo_media_aerolinea')  # Relación Many To One
-    aerolinea = models.ForeignKey(Aerolinea, on_delete=models.CASCADE, related_name='aerolinea_media_aerolinea') # Relación Many To One
+    vuelo = models.ForeignKey(Vuelo, on_delete=models.CASCADE, related_name='vuelo_media_aerolinea')
+    aerolinea = models.ForeignKey(Aerolinea, on_delete=models.CASCADE, related_name='aerolinea_media_aerolinea')
   
 
 
