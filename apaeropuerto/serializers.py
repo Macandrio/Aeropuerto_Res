@@ -252,3 +252,15 @@ class AerolineaSerializerActualizarNombre(serializers.ModelSerializer):
         if(not Nombre is None and Nombre.id != self.instance.id):
             raise serializers.ValidationError('Ya existe un Aeropuerto con ese nombre')
         return nombre
+
+# Reserva  
+class ReservaSerializerActualizarcodigo(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = Reserva
+        fields = ['codigo_descueto']
+    
+    def validate_codigo_descueto(self,codigo_descueto): 
+        if len(codigo_descueto) < 2:
+            raise serializers.ValidationError('Debe tener al menos 1 caracter')
+        return codigo_descueto

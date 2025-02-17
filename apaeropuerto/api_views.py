@@ -447,6 +447,20 @@ def Reserva_editar(request,reserva_id):
     else:
         return Response(ReservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(['PATCH'])    
+def Reserva_actualizar_codigo(request,reserva_id):
+    reserva = Reserva.objects.get(id=reserva_id)
+    serializers = ReservaSerializerActualizarcodigo(data=request.data,instance=reserva)
+    if serializers.is_valid():
+        try:
+            serializers.save()
+            return Response("Reserva Actualizada")
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #--------------------------------------Formularios_Actualizar----------------------------------------------------------------
 
 @api_view(['PATCH'])
