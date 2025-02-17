@@ -512,3 +512,12 @@ def Aerolinea_eliminar(request,aerolinea_id):
         return Response("Aerolinea ELIMINADA")
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['DELETE'])
+def Reserva_eliminar(request,reserva_id):
+    reserva = Reserva.objects.get(id=reserva_id)
+    try:
+        reserva.delete()
+        return Response("Reserva ELIMINADA")
+    except Exception as error:
+        return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

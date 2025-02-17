@@ -42,8 +42,6 @@ urlpatterns = [
     path('Aerolinea/editar/<int:aerolinea_id>', Aerolinea_editar),
     path('Reserva/editar/<int:reserva_id>', Reserva_editar),
 
-
-
     # Actualizar
     path('Aeropuerto/actualizar/nombre/<int:aeropuerto_id>',Aeropuerto_actualizar_nombre),
     path('Aerolinea/actualizar/nombre/<int:aerolinea_id>',Aerolinea_actualizar_nombre),
@@ -52,5 +50,6 @@ urlpatterns = [
     # Eliminar
     path('Aeropuerto/eliminar/<int:aeropuerto_id>',Aeropuerto_eliminar),
     path('Aerolinea/eliminar/<int:aerolinea_id>',Aerolinea_eliminar),
+    path('Reserva/eliminar/<int:reserva_id>',Reserva_eliminar),
     
 ]
