@@ -51,6 +51,7 @@
                     {% include 'Estructura/menuformulario.html' %}
                 </div>
 
+
                 <div class="ml-2">
                     {% if not request.user.is_authenticated %}
                     <a class="btn btn-outline-warning" href="{% url 'login' %}">
@@ -78,6 +79,14 @@
 
         {% comment %} Contenido {% endcomment %}
         <main class="content-section">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                {% endif %}
             {% block contenido %}
                 <!-- Puedes agregar contenido aquí o sobreescribirlo desde otros templates extendidos -->
             {% endblock %}

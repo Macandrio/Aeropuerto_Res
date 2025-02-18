@@ -380,7 +380,7 @@ def Vuelo_obtener(request):
 
 #Obtener Reserva
 @api_view(['GET']) 
-def Reserva_obtener(request,reserva_id):
+def Reserva_obtener_id(request,reserva_id):
     reserva = Reserva.objects.select_related(
     'pasajero',
     'vuelo'
@@ -388,6 +388,15 @@ def Reserva_obtener(request,reserva_id):
     serializer = ReservaSerializer(reserva) 
     return Response(serializer.data)
 
+#Obtener Reserva
+@api_view(['GET']) 
+def Reserva_obtener(request):
+    reserva = Reserva.objects.select_related(
+    'pasajero',
+    'vuelo'
+)
+    serializer = ReservaSerializer(reserva) 
+    return Response(serializer.data)
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
 @api_view(['POST'])
@@ -519,20 +528,7 @@ def Reserva_editar(request,reserva_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(ReservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['PATCH'])    
-def Reserva_actualizar_codigo(request,reserva_id):
-    reserva = Reserva.objects.get(id=reserva_id)
-    serializers = ReservaSerializerActualizarcodigo(data=request.data,instance=reserva)
-    if serializers.is_valid():
-        try:
-            serializers.save()
-            return Response("Reserva Actualizada")
-        except Exception as error:
-            print(repr(error))
-            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 #--------------------------------------Formularios_Actualizar----------------------------------------------------------------
 

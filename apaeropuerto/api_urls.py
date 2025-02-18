@@ -23,7 +23,8 @@ urlpatterns = [
     path('Pasajeros/', Pasajeros_obtener),
     path('Usuario/<int:usuario_id>', Usuario_obtener),
     path('Vuelos/', Vuelo_obtener),
-    path('Reserva/<int:reserva_id>', Reserva_obtener),
+    path('Reserva/<int:reserva_id>', Reserva_obtener_id),
+    path('Reservas/', Reserva_obtener),
 
     # Buscar
     path('Aeropuerto/busqueda_simple', Aeropuerto_buscar),

@@ -223,6 +223,16 @@ class  ReservaSerializerCreate(serializers.ModelSerializer):
         if fecha_reserva < hoy:
             raise serializers.ValidationError("La fecha de reserva no puede ser anterior a la fecha actual.")
         return fecha_reserva
+    
+    def validate_vuelo(self,vuelo):
+        if vuelo == "":
+            raise serializers.ValidationError("Debes elegir un vuelo.")
+        return vuelo
+    
+    def validate_pasajero(self,pasajero):
+        if pasajero == "":
+            raise serializers.ValidationError("Debes elegir un pasajero.")
+        return pasajero
 
 # Vuelo Aerolineas
 class  VueloAerolineasSerializerCreate(serializers.ModelSerializer):
@@ -265,18 +275,21 @@ class  VueloAerolineasSerializerCreate(serializers.ModelSerializer):
         if len(aerolineas)<2:
             raise serializers.ValidationError({"aerolinea": ["Debe seleccionar al menos dos aerolínea"]})
         
-        vueloaerolinea = VueloAerolinea.objects.create(
-            fecha_operacion = validated_data['fecha_operacion'],
+        vuelo = Vuelo.objects.create(
+            hora_salida = validated_data['hora_salida'],
+            hora_llegada = validated_data['hora_llegada'],
             estado = validated_data['estado'],
-            clase = validated_data['clase'],
-            incidencias = validated_data['incidencias'],
+            duracion = validated_data['duracion'],
+            origen = validated_data['origen'],
+            destino = validated_data['destino'],
+            aerolinea = validated_data['aerolinea'],
         )
-        vueloaerolinea.vuelo.set(validated_data["vuelo"])
+        vuelo.aerolinea.set(validated_data["aerolinea"])
 
         for aerolinea in aerolineas:
             modeloaerolinea = aerolinea.objects.get(id=aerolinea)
-            Aerolinea.objects.create(aerolinea=modeloaerolinea,vueloaerolinea=vueloaerolinea)
-        return vueloaerolinea
+            Aerolinea.objects.create(aerolinea=modeloaerolinea,vuelo=vuelo)
+        return vuelo
     
     def update(self, instance, validated_data):
         vuelos = self.initial_data.get("vuelo", [])  # 🛠️ Extrae IDs de vuelos
