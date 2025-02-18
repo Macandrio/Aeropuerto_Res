@@ -60,17 +60,6 @@ def lista_reserva(request):
     serializer = ReservaSerializer(reserva, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
-def lista_vueloaerolinea(request):
-    
-    vuelosaerolinea = VueloAerolinea.objects.select_related(
-        'aerolinea',   # ForeignKey directa a Aerolinea
-        'vuelo'        # ForeignKey directa a Vuelo
-    )
-
-    serializer = VueloAerolineaSerializer(vuelosaerolinea, many=True)
-    return Response(serializer.data)
-
 #--------------------------------------Formularios_Buscar----------------------------------------------------------------
 
 #Aeropuerto Buscar
@@ -252,47 +241,6 @@ def Reservas_buscar_avanzado(request):
     else:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['GET'])
-def VueloAerolinea_buscar_avanzado(request):
-    if len(request.query_params) > 0:
-
-        formulario = BusquedaAvanzadaVuelosAerolineaForm(request.query_params)
-        
-
-        if formulario.is_valid():
-            QSvueloaerolinea = VueloAerolinea.objects.select_related(
-                            'aerolinea',   # ForeignKey directa a Aerolinea
-                            'vuelo'        # ForeignKey directa a Vuelo
-                        )
-
-            # Obtener los filtros del formulario
-            clase = formulario.cleaned_data.get('clase')
-            fecha_operacion = formulario.cleaned_data.get('fecha_operacion')
-            estado = formulario.cleaned_data.get('estado')
-            incidencias = formulario.cleaned_data.get('incidencias')
-
-            # Aplicar filtros dinámicamente
-            if estado:
-                QSvueloaerolinea = QSvueloaerolinea.filter(estado__icontains=estado)
-
-            if incidencias:
-                QSvueloaerolinea = QSvueloaerolinea.filter(incidencias__icontains=incidencias)      
-
-            if fecha_operacion:
-                QSvueloaerolinea = QSvueloaerolinea.filter(fecha_operacion__gte=fecha_operacion) #Mayor o igual 
-
-            if clase is not None:
-                QSvueloaerolinea = QSvueloaerolinea.filter(clase=clase) 
-
-            # Obtener resultados y serializar
-            reserva = QSvueloaerolinea.all()
-            serializer = VueloAerolineaSerializer(reserva, many=True)
-            return Response(serializer.data)
-        else:
-            return Response(formulario.errors, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
 
 #--------------------------------------Formularios_Obtener----------------------------------------------------------------
 
@@ -326,7 +274,7 @@ def Aeropuertos_obtener(request):
 
 #Obtener Aerolinea por id
 @api_view(['GET']) 
-def Aerolinea_obtener(request,aerolinea_id):
+def Aerolinea_obtener_id(request,aerolinea_id):
     aerolinea = Aerolinea.objects.prefetch_related(
                     Prefetch('aeropuerto'),               # ManyToMany con Aeropuerto
                     Prefetch('vuelo_aerolinea')           # ManyToMany con Vuelo
@@ -376,6 +324,21 @@ def Vuelo_obtener(request):
     'destino'                             # ManyToOne con Aeropuerto (destino)
 )
     serializer = VueloSerializer(vuelo, many=True)  # ✅ Se añade many=True para manejar una lista
+    return Response(serializer.data)
+
+#Obtener Reserva
+@api_view(['GET']) 
+def Vuelo_obtener_id(request,vuelo_id):
+    vuelo = Vuelo.objects.prefetch_related(
+    Prefetch('vuelo_pasajero'),           # ManyToMany con Pasajero
+    Prefetch('asiento_vuelo'),            # ManyToOne con Asiento
+    Prefetch('vuelo_media_aerolinea'),    # ManyToOne con VueloAerolinea
+    Prefetch('vuelo_datos')               # OneToOne con EstadisticasVuelo
+).select_related(
+    'origen',                             # ManyToOne con Aeropuerto (origen)
+    'destino'                             # ManyToOne con Aeropuerto (destino)
+).get(id=vuelo_id)
+    serializer = VueloSerializer(vuelo) 
     return Response(serializer.data)
 
 #Obtener Reserva
@@ -453,28 +416,26 @@ def Reserva_create(request):
         print("❌ Errores de validación:", reservaCreateSerializer.errors)
         return Response(reservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST']) 
-def VueloAerolinea_create(request): 
-    print(f"📥 Datos recibidos en la API: {request.data}")
+@api_view(['POST'])
+def Vuelo_create(request): 
+    vueloCreateSerializer = VueloSerializerCreate(data=request.data)
+    print("📩 Datos recibidos en la petición:", request.data)  # Depurar datos entrantes
 
-    vueloaerolineaCreateSerializer = VueloAerolineasSerializerCreate(data=request.data)
-
-    if vueloaerolineaCreateSerializer.is_valid():
-        
+    if vueloCreateSerializer.is_valid():
         try:
-            vueloaerolineaCreateSerializer.save()
-            return Response("Vuelo de Aerolineas Creado")
+            vueloCreateSerializer.save()
+            return Response("Vuelo Creado")
         
         except serializers.ValidationError as error:
+            print("❌ Error de validación en el guardado:", error.detail)
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
-            print(repr(error))
+            print("🔥 Error inesperado:", repr(error))
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-        print("❌ Errores de validación:", VueloAerolineasSerializerCreate.errors)
-        return Response(VueloAerolineasSerializerCreate.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        print("❌ Errores de validación:", vueloCreateSerializer.errors)
+        return Response(vueloCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #--------------------------------------Formularios_Editar----------------------------------------------------------------
 
 @api_view(['PUT'])
@@ -529,7 +490,40 @@ def Reserva_editar(request,reserva_id):
     else:
         return Response(ReservaCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+@api_view(['PUT'])
+def Vuelo_editar(request, vuelo_id):
+    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+
+    try:
+        vuelo = Vuelo.objects.get(id=vuelo_id)
+    except Vuelo.DoesNotExist:
+        print(f"❌ ERROR: Vuelo con ID {vuelo_id} no encontrado")
+        return Response({"error": "Vuelo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    # ✅ Serializador con instancia existente (edición)
+    VueloCreateSerializer = VueloSerializerCreate(instance=vuelo, data=request.data)
+
+    # 🔍 Depuración: Verificar si los datos pasan la validación
+    if VueloCreateSerializer.is_valid():
+        try:
+            print(f"✅ Datos validados antes de guardar: {VueloCreateSerializer.validated_data}")  # Ver qué datos se guardarán
+            VueloCreateSerializer.save()
+            print("✔️ Vuelo editado exitosamente en la base de datos.")
+            return Response("Vuelo EDITADO", status=status.HTTP_200_OK)
+
+        except serializers.ValidationError as error:
+            print(f"❌ ERROR en validación al guardar: {error.detail}")
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as error:
+            print(f"🔥 ERROR inesperado al guardar: {repr(error)}")
+            return Response({"error": repr(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        print(f"❌ ERROR en validación: {VueloCreateSerializer.errors}")
+        return Response(VueloCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
 #--------------------------------------Formularios_Actualizar----------------------------------------------------------------
 
 @api_view(['PATCH'])

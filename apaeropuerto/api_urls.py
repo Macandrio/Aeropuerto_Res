@@ -9,7 +9,7 @@ urlpatterns = [
     path('Aerolinea',lista_aerolinea, name='lista_aerolinea'),
     path('Vuelo',lista_vuelo, name='lista_vuelo'),
     path('Reserva',lista_reserva, name='lista_reserva'),
-    path('Vueloaerolinea',lista_vueloaerolinea, name='lista_vueloaerolinea'),
+    path('Vuelo',lista_vuelo, name='lista_vuelo'),
 
 
 
@@ -18,11 +18,12 @@ urlpatterns = [
     #Obtener
     path('Aeropuerto/', Aeropuertos_obtener),
     path('Aeropuerto/<int:aeropuerto_id>', Aeropuerto_obtener),  
-    path('Aerolinea/<int:aerolinea_id>', Aerolinea_obtener),
+    path('Aerolinea/<int:aerolinea_id>', Aerolinea_obtener_id),
     path('Aerolineas/', Aerolinea_obtener),
     path('Pasajeros/', Pasajeros_obtener),
     path('Usuario/<int:usuario_id>', Usuario_obtener),
     path('Vuelos/', Vuelo_obtener),
+    path('Vuelos/<int:vuelo_id>', Vuelo_obtener_id),
     path('Reserva/<int:reserva_id>', Reserva_obtener_id),
     path('Reservas/', Reserva_obtener),
 
@@ -32,19 +33,20 @@ urlpatterns = [
     path('Aerolinea/busqueda_avanzada', Aerolinea_buscar_avanzado), 
     path('Estadisticas/busqueda_avanzada', Estadisticas_buscar_avanzado),  
     path('Reservas/busqueda_avanzada', Reservas_buscar_avanzado),
-    path('VueloAerolinea/busqueda_avanzada', VueloAerolinea_buscar_avanzado),
-
+    
     # Crear
     path('Aeropuerto/Crear', Aeropuerto_create),
     path('Aerolinea/Crear', Aerolinea_create),
     path('Reserva/Crear', Reserva_create),
-    path('VueloAerolinea/Crear', VueloAerolinea_create),
+    path('Vuelo/Crear', Vuelo_create),
+    
 
 
     # Editar
     path('Aeropuerto/editar/<int:aeropuerto_id>', Aeropuerto_editar),
     path('Aerolinea/editar/<int:aerolinea_id>', Aerolinea_editar),
     path('Reserva/editar/<int:reserva_id>', Reserva_editar),
+    path('Vuelo/editar/<int:vuelo_id>', Vuelo_editar),
 
     # Actualizar
     path('Aeropuerto/actualizar/nombre/<int:aeropuerto_id>',Aeropuerto_actualizar_nombre),

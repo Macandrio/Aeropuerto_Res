@@ -132,9 +132,7 @@ class EstadisticasVuelo(models.Model):
 
     vuelo = models.OneToOneField(Vuelo, on_delete=models.CASCADE, related_name='vuelo_datos') #OneToOne
 
-
-# Modelo Pasajero
-        
+# Modelo Pasajero       
 class Pasajero(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete = models.CASCADE)
     direccion = models.CharField(max_length=100)
@@ -186,8 +184,6 @@ class VueloAerolinea(models.Model):
 
     vuelo = models.ForeignKey(Vuelo, on_delete=models.CASCADE, related_name='vuelo_media_aerolinea')
     aerolinea = models.ForeignKey(Aerolinea, on_delete=models.CASCADE, related_name='aerolinea_media_aerolinea')
-  
-
 
 # Modelo Reserva
 class Reserva(models.Model):
@@ -236,8 +232,6 @@ class Asiento(models.Model):
     vuelo = models.ForeignKey(Vuelo, on_delete=models.CASCADE, related_name='asiento_vuelo')  # Relación ManyToOne
     pasajero = models.ForeignKey(Pasajero,on_delete=models.CASCADE, related_name='pajarelo_asiento')  # Relación ManyToOne 
 
-
-
 # Modelo Servicio
 class Servicio(models.Model):
     tipo_servicio = models.CharField(max_length=100)
@@ -250,7 +244,6 @@ class Servicio(models.Model):
     def __str__(self):
         return self.tipo_servicio
     
-
 # Modelo Empleado
 class Empleado(models.Model):
     CARGO = [

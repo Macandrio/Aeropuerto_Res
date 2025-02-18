@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from .forms import *
-import datetime
+from datetime import datetime
 
 
 #---------------------------------------------------------Modelos--------------------------------------------------------------------------------
@@ -33,9 +33,10 @@ class VueloSerializer(serializers.ModelSerializer):
     aerolinea = AerolineaSerializer(read_only=True, many=True)
     
     #Para formatear Fechas
-    hora_salida = serializers.DateTimeField()
+    hora_salida = serializers.DateTimeField(format=("%Y-%m-%d %H:%M:%S"))
+
     #Para formatear Fechas
-    hora_llegada = serializers.DateTimeField()
+    hora_llegada = serializers.DateTimeField(format=("%Y-%m-%d %H:%M:%S"))
     
     class Meta:
         fields = ('id',
@@ -234,43 +235,83 @@ class  ReservaSerializerCreate(serializers.ModelSerializer):
             raise serializers.ValidationError("Debes elegir un pasajero.")
         return pasajero
 
-# Vuelo Aerolineas
-class  VueloAerolineasSerializerCreate(serializers.ModelSerializer):
+# Vuelo
+class  VueloSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
-        model = VueloAerolinea
-        fields = ['fecha_operacion','estado','clase','incidencias','vuelo','aerolinea']
+        model = Vuelo
+        fields = ['hora_salida','hora_llegada','estado','origen','destino','aerolinea']
 
     
-    def validate_clase(self,clase):
-        if clase == "":
-            raise serializers.ValidationError('Debes seleccionar una Clase')
-        return clase
-    
-    def validate_estado(self,estado): 
-        if len(estado) < 2:
-            raise serializers.ValidationError('Debe tener al menos 1 caracter')
-        return estado
-    
-    def validate_incidencias(self,incidencias): 
-        if len(incidencias) < 2:
-            raise serializers.ValidationError('Debe tener al menos 1 caracter')
-        return incidencias
+    def validate_hora_llegada(self, hora_llegada):
+        hora_salida = self.initial_data.get('hora_salida')  # Obtiene hora_salida del request
 
-    def validate_fecha_operacion(self, fecha_operacion):
-        fechaHoy = datetime.datetime.now()
+        if hora_salida and hora_llegada:  # Verifica que ambas fechas existen
+            # Manejar distintos formatos de fecha/hora
+            formatos_permitidos = [
+                "%Y-%m-%dT%H:%M",      # Formato sin segundos (ej. '2025-02-18T13:35')
+                "%Y-%m-%d %H:%M",      # Mismo pero con espacio en vez de 'T'
+                "%Y-%m-%dT%H:%M:%S",   # Formato estándar con segundos
+                "%Y-%m-%d %H:%M:%S"    # Espacio en vez de 'T'
+            ]
 
-        if fechaHoy < fecha_operacion:
-            raise serializers.ValidationError('La fecha de Opercion debe ser menor a Hoy')
-        return fecha_operacion
+            def convertir_fecha(fecha):
+                if isinstance(fecha, str):
+                    for formato in formatos_permitidos:
+                        try:
+                            return datetime.strptime(fecha, formato)
+                        except ValueError:
+                            continue
+                    raise serializers.ValidationError(f"Formato de fecha/hora inválido: {fecha}")
+
+                return fecha  # Ya es datetime
+
+            hora_salida = convertir_fecha(hora_salida)
+            hora_llegada = convertir_fecha(hora_llegada)
+
+            # Validar que la hora de salida no sea mayor que la de llegada
+            if hora_salida > hora_llegada:
+                raise serializers.ValidationError('La hora de llegada debe ser después de la de salida')
+
+        return hora_llegada
     
-    def validar_vuelo(self, vuelo):
-        if len(vuelo) < 1:
-            raise serializers.ValidationError('Debe seleccionar al menos un vuelo')
-        return vuelo
+    def validate_origen(self, origen):
+        destino_id = self.initial_data.get("destino")  # Obtiene el ID del destino desde el request
+
+        if not destino_id or not origen:  # Verifica que ambos existan
+            return origen
+
+        if isinstance(origen, str):  # Si 'origen' es un nombre, obtenemos su ID
+            origen_id = Vuelo.objects.filter(origen=origen).values_list("id", flat=True).first()
+        else:
+            origen_id = origen.id  # Si 'origen' ya es un objeto, usamos su ID directamente
+
+        # Comparar IDs en lugar de nombres
+        if int(destino_id) == origen_id:
+            raise serializers.ValidationError("El origen debe ser distinto del destino.")
+
+        return origen
+
+    def validate_destino(self, destino):
+        origen_id = self.initial_data.get("origen")  # Obtiene el ID del origen desde el request
+
+        if not origen_id or not destino:  # Verifica que ambos existan
+            return destino
+
+        if isinstance(destino, str):  # Si 'destino' es un nombre, obtenemos su ID
+            destino_id = Vuelo.objects.filter(destino=destino).values_list("id", flat=True).first()
+        else:
+            destino_id = destino.id  # Si 'destino' ya es un objeto, usamos su ID directamente
+
+        # Comparar IDs en lugar de nombres
+        if int(origen_id) == destino_id:
+            raise serializers.ValidationError("El destino debe ser distinto del origen.")
+
+        return destino
+
     
     def create(self, validated_data):
-        aerolineas = self.initial_data("aerolinea")  # 🛠️ Extraer IDs de aerolíneas
+        aerolineas = self.initial_data.get("aerolinea", [])  # ✅ Forma correcta
 
         if len(aerolineas)<2:
             raise serializers.ValidationError({"aerolinea": ["Debe seleccionar al menos dos aerolínea"]})
@@ -279,45 +320,33 @@ class  VueloAerolineasSerializerCreate(serializers.ModelSerializer):
             hora_salida = validated_data['hora_salida'],
             hora_llegada = validated_data['hora_llegada'],
             estado = validated_data['estado'],
-            duracion = validated_data['duracion'],
             origen = validated_data['origen'],
             destino = validated_data['destino'],
-            aerolinea = validated_data['aerolinea'],
         )
-        vuelo.aerolinea.set(validated_data["aerolinea"])
 
-        for aerolinea in aerolineas:
-            modeloaerolinea = aerolinea.objects.get(id=aerolinea)
-            Aerolinea.objects.create(aerolinea=modeloaerolinea,vuelo=vuelo)
+        vuelo.aerolinea.set(Aerolinea.objects.filter(id__in=aerolineas))
+
         return vuelo
     
     def update(self, instance, validated_data):
-        vuelos = self.initial_data.get("vuelo", [])  # 🛠️ Extrae IDs de vuelos
         aerolineas = self.initial_data.get("aerolinea", [])  # 🛠️ Extrae IDs de aerolíneas
 
         # ❌ Valida que al menos haya un vuelo y una aerolínea
-        if len(vuelos) < 1:
-            raise serializers.ValidationError(
-                {'vuelo': ['Debe seleccionar al menos un vuelo']}
-            )
-        if len(aerolineas) < 1:
-            raise serializers.ValidationError(
-                {'aerolinea': ['Debe seleccionar al menos una aerolínea']}
-            )
+        if len(aerolineas)<2:
+            raise serializers.ValidationError({"aerolinea": ["Debe seleccionar al menos dos aerolínea"]})
+        
 
         # ✅ Actualiza los campos normales
-        instance.fecha_operacion = validated_data.get("fecha_operacion", instance.fecha_operacion)
-        instance.estado = validated_data.get("estado", instance.estado)
-        instance.incidencias = validated_data.get("incidencias", instance.incidencias)
-        instance.clase = validated_data.get("clase", instance.clase)
+        instance.hora_salida = validated_data["hora_salida"]
+        instance.hora_llegada = validated_data["hora_llegada"]
+        instance.estado = validated_data["estado"]
+        instance.origen = validated_data["origen"]
+        instance.destino = validated_data["destino"]
         instance.save()
 
-        # ✅ Asigna relaciones ManyToMany correctamente
-        instance.vuelo.set(vuelos)  # Asigna nuevos vuelos
-        instance.aerolinea.set(aerolineas)  # Asigna nuevas aerolíneas
+        instance.aerolinea.set(Aerolinea.objects.filter(id__in=aerolineas))
 
         return instance
-
 
         
 
