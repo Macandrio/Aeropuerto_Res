@@ -568,6 +568,19 @@ def Reserva_actualizar_codigo(request,reserva_id):
     else:
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PATCH'])    
+def Vuelo_actualizar_estado(request,vuelo_id):
+    vuelo = Vuelo.objects.get(id=vuelo_id)
+    serializers = VueloSerializerActualizarestado(data=request.data,instance=vuelo)
+    if serializers.is_valid():
+        try:
+            serializers.save()
+            return Response("Vuelo Actualizada")
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 #--------------------------------------Formularios_Eliminar----------------------------------------------------------------
 
 @api_view(['DELETE'])

@@ -391,3 +391,20 @@ class ReservaSerializerActualizarcodigo(serializers.ModelSerializer):
         if len(codigo_descueto) < 2:
             raise serializers.ValidationError('Debe tener al menos 1 caracter')
         return codigo_descueto
+    
+# Vuelo  
+class VueloSerializerActualizarestado(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vuelo
+        fields = ['hora_llegada']
+
+    def validate_hora_llegada(self, hora_llegada):
+        # Obtener la instancia actual del vuelo
+        vuelo = self.instance  # Esto obtiene el vuelo que se está actualizando
+
+        if vuelo and vuelo.hora_salida:  # Asegurar que el vuelo tiene hora_salida
+            if hora_llegada <= vuelo.hora_salida:
+                raise serializers.ValidationError("La hora de llegada debe ser después de la hora de salida.")
+
+        return hora_llegada

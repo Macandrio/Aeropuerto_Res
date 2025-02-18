@@ -52,6 +52,7 @@ urlpatterns = [
     path('Aeropuerto/actualizar/nombre/<int:aeropuerto_id>',Aeropuerto_actualizar_nombre),
     path('Aerolinea/actualizar/nombre/<int:aerolinea_id>',Aerolinea_actualizar_nombre),
     path('Reserva/actualizar/codigo/<int:reserva_id>',Reserva_actualizar_codigo),
+    path('Vuelo/actualizar/hora_llegada/<int:vuelo_id>',Vuelo_actualizar_estado),
 
     # Eliminar
     path('Aeropuerto/eliminar/<int:aeropuerto_id>',Aeropuerto_eliminar),
