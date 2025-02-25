@@ -59,5 +59,10 @@ urlpatterns = [
     path('Aerolinea/eliminar/<int:aerolinea_id>',Aerolinea_eliminar),
     path('Reserva/eliminar/<int:reserva_id>',Reserva_eliminar),
     path('Vuelo/eliminar/<int:vuelo_id>',Vuelo_eliminar),
+
+    #usuario
+    path('registrar/usuario',registrar_usuario.as_view()),
+    path('usuario/token/<str:token>',obtener_usuario_token)
+
     
 ]

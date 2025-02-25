@@ -8,12 +8,19 @@ from rest_framework import status
 from django.contrib.auth.models import Group
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from oauth2_provider.models import AccessToken 
 
 
 #----------------------------------------------Listar----------------------------------------------------------------
 @api_view(['GET'])
 def lista_aeropuerto(request):
 
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_aeropuerto"):
+        return Response({"error": "No tienes permisos para ver los Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     aeropuerto = Aeropuerto.objects.prefetch_related(
     Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
     Prefetch('vuelos_de_origen'),         # ManyToOne reversa con Vuelo (origen)
@@ -26,6 +33,10 @@ def lista_aeropuerto(request):
 @api_view(['GET'])
 def lista_aerolinea(request):
     
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_aerolinea"):
+        return Response({"error": "No tienes permisos para ver las Aerolineas."}, status=status.HTTP_403_FORBIDDEN)
+    
     aerolinea = Aerolinea.objects.prefetch_related(
     Prefetch('aeropuerto'),               # ManyToMany con Aeropuerto
     Prefetch('vuelo_aerolinea')           # ManyToMany con Vuelo
@@ -35,6 +46,10 @@ def lista_aerolinea(request):
 
 @api_view(['GET'])
 def lista_vuelo(request):
+    
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_vuelo"):
+        return Response({"error": "No tienes permisos para ver los Vuelos."}, status=status.HTTP_403_FORBIDDEN)
     
     vuelo = Vuelo.objects.prefetch_related(
     Prefetch('vuelo_pasajero'),           # ManyToMany con Pasajero
@@ -49,9 +64,12 @@ def lista_vuelo(request):
     serializer = VueloSerializer(vuelo, many=True)
     return Response(serializer.data)
 
-
 @api_view(['GET'])
 def lista_reserva(request):
+    
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_reserva"):
+        return Response({"error": "No tienes permisos para ver las Reservas."}, status=status.HTTP_403_FORBIDDEN)
     
     reserva = Reserva.objects.select_related(
     'pasajero',
@@ -65,6 +83,11 @@ def lista_reserva(request):
 #Aeropuerto Buscar
 @api_view(['GET'])
 def Aeropuerto_buscar(request):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_aeropuerto"):
+        return Response({"error": "No tienes permisos para ver los Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     formulario = BusquedaAeropuertoForm(request.query_params)
     if(formulario.is_valid()):
         texto = formulario.data.get('textoBusqueda')
@@ -82,6 +105,11 @@ def Aeropuerto_buscar(request):
 
 @api_view(['GET'])
 def Aeropuerto_buscar_avanzado(request):
+    
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_aeropuerto"):
+        return Response({"error": "No tienes permisos para ver los Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     if len(request.query_params) > 0:
 
         formulario = BusquedaAvanzadaAeropuertoForm(request.query_params)
@@ -127,6 +155,11 @@ def Aeropuerto_buscar_avanzado(request):
 
 @api_view(['GET'])
 def Aerolinea_buscar_avanzado(request):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_aerolinea"):
+        return Response({"error": "No tienes permisos para ver las aerolineas."}, status=status.HTTP_403_FORBIDDEN)
+    
     if len(request.query_params) > 0:
 
         formulario = BusquedaAvanzadaAerolinea(request.query_params)
@@ -168,6 +201,11 @@ def Aerolinea_buscar_avanzado(request):
     
 @api_view(['GET'])
 def Estadisticas_buscar_avanzado(request):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_estadisticas"):
+        return Response({"error": "No tienes permisos para ver las Estadisticas del vuelo."}, status=status.HTTP_403_FORBIDDEN)
+    
     if len(request.query_params) > 0:
 
         formulario = BusquedaAvanzadaEstadisticas(request.query_params)
@@ -207,6 +245,11 @@ def Estadisticas_buscar_avanzado(request):
     
 @api_view(['GET'])
 def Reservas_buscar_avanzado(request):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_reserva"):
+        return Response({"error": "No tienes permisos para ver Las reservas."}, status=status.HTTP_403_FORBIDDEN)
+    
     if len(request.query_params) > 0:
 
         formulario = BusquedaAvanzadaReservaForm(request.query_params)
@@ -364,6 +407,11 @@ def Reserva_obtener(request):
 
 @api_view(['POST'])
 def Aeropuerto_create(request): 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.add_aeropuerto"):
+        return Response({"error": "No tienes permisos para crear los Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     aeropuertoCreateSerializer = AeropuertoSerializerCreate(data=request.data)
 
     if aeropuertoCreateSerializer.is_valid():
@@ -382,6 +430,11 @@ def Aeropuerto_create(request):
 
 @api_view(['POST'])
 def Aerolinea_create(request): 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.add_aerolinea"):
+        return Response({"error": "No tienes permisos para crear las aerolienas."}, status=status.HTTP_403_FORBIDDEN)
+    
     aerolineaCreateSerializer = AerolineaSerializerCreate(data=request.data)
 
     if aerolineaCreateSerializer.is_valid():
@@ -400,6 +453,11 @@ def Aerolinea_create(request):
 
 @api_view(['POST'])
 def Reserva_create(request): 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.add_reserva"):
+        return Response({"error": "No tienes permisos para crear las reservas."}, status=status.HTTP_403_FORBIDDEN)
+    
     reservaCreateSerializer = ReservaSerializerCreate(data=request.data)
 
     if reservaCreateSerializer.is_valid():
@@ -418,6 +476,11 @@ def Reserva_create(request):
 
 @api_view(['POST'])
 def Vuelo_create(request): 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.add_vuelo"):
+        return Response({"error": "No tienes permisos para crear los vuelos."}, status=status.HTTP_403_FORBIDDEN)
+    
     vueloCreateSerializer = VueloSerializerCreate(data=request.data)
     print("📩 Datos recibidos en la petición:", request.data)  # Depurar datos entrantes
 
@@ -440,6 +503,11 @@ def Vuelo_create(request):
 
 @api_view(['PUT'])
 def Aeropuerto_editar(request,aeropuerto_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_aeropuerto"):
+        return Response({"error": "No tienes permisos para editar el Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
     AeropuertoCreateSerializer = AeropuertoSerializerCreate(data=request.data,instance=aeropuerto)
     if AeropuertoCreateSerializer.is_valid():
@@ -457,7 +525,11 @@ def Aeropuerto_editar(request,aeropuerto_id):
     
 @api_view(['PUT'])
 def Aerolinea_editar(request,aerolinea_id):
-    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_aerolinea"):
+        return Response({"error": "No tienes permisos para editar la aerolinea."}, status=status.HTTP_403_FORBIDDEN)
+    
     aerolinea = Aerolinea.objects.get(id=aerolinea_id)
     AerolineaCreateSerializer = AerolineaSerializerCreate(data=request.data,instance=aerolinea)
     if AerolineaCreateSerializer.is_valid():
@@ -475,7 +547,11 @@ def Aerolinea_editar(request,aerolinea_id):
 
 @api_view(['PUT'])
 def Reserva_editar(request,reserva_id):
-    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+    
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_reserva"):
+        return Response({"error": "No tienes permisos para editar la reserva."}, status=status.HTTP_403_FORBIDDEN)
+    
     reserva = Reserva.objects.get(id=reserva_id)
     ReservaCreateSerializer = ReservaSerializerCreate(data=request.data,instance=reserva)
     if ReservaCreateSerializer.is_valid():
@@ -492,7 +568,10 @@ def Reserva_editar(request,reserva_id):
 
 @api_view(['PUT'])
 def Vuelo_editar(request, vuelo_id):
-    print(f"📌 Datos recibidos en la API (JSON): {request.data}") 
+   
+   # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_vuelo"):
+        return Response({"error": "No tienes permisos para editar el vuelo."}, status=status.HTTP_403_FORBIDDEN)
 
     try:
         vuelo = Vuelo.objects.get(id=vuelo_id)
@@ -528,6 +607,11 @@ def Vuelo_editar(request, vuelo_id):
 
 @api_view(['PATCH'])
 def Aeropuerto_actualizar_nombre(request,aeropuerto_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_aeropuerto"):
+        return Response({"error": "No tienes permisos para editar el Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+    
     aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
     serializers = AeropuertoSerializerActualizarNombre(data=request.data,instance=aeropuerto)
     if serializers.is_valid():
@@ -542,6 +626,11 @@ def Aeropuerto_actualizar_nombre(request,aeropuerto_id):
 
 @api_view(['PATCH'])    
 def Aerolinea_actualizar_nombre(request,aerolinea_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_aerolinea"):
+        return Response({"error": "No tienes permisos para editar la aerolinea."}, status=status.HTTP_403_FORBIDDEN)
+    
     aerolinea = Aerolinea.objects.get(id=aerolinea_id)
     serializers = AerolineaSerializerActualizarNombre(data=request.data,instance=aerolinea)
     if serializers.is_valid():
@@ -556,6 +645,11 @@ def Aerolinea_actualizar_nombre(request,aerolinea_id):
 
 @api_view(['PATCH'])    
 def Reserva_actualizar_codigo(request,reserva_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_reserva"):
+        return Response({"error": "No tienes permisos para editar la reserva."}, status=status.HTTP_403_FORBIDDEN)
+    
     reserva = Reserva.objects.get(id=reserva_id)
     serializers = ReservaSerializerActualizarcodigo(data=request.data,instance=reserva)
     if serializers.is_valid():
@@ -570,6 +664,11 @@ def Reserva_actualizar_codigo(request,reserva_id):
 
 @api_view(['PATCH'])    
 def Vuelo_actualizar_estado(request,vuelo_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.change_vuelo"):
+        return Response({"error": "No tienes permisos para editar el vuelo."}, status=status.HTTP_403_FORBIDDEN)
+    
     vuelo = Vuelo.objects.get(id=vuelo_id)
     serializers = VueloSerializerActualizarestado(data=request.data,instance=vuelo)
     if serializers.is_valid():
@@ -581,10 +680,16 @@ def Vuelo_actualizar_estado(request,vuelo_id):
             return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #--------------------------------------Formularios_Eliminar----------------------------------------------------------------
 
 @api_view(['DELETE'])
 def Aeropuerto_eliminar(request,aeropuerto_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.delete_aeropuerto"):
+        return Response({"error": "No tienes permisos para eliminar el aeropuerto."}, status=status.HTTP_403_FORBIDDEN)
+    
     aeropuerto = Aeropuerto.objects.get(id=aeropuerto_id)
     try:
         aeropuerto.delete()
@@ -594,6 +699,11 @@ def Aeropuerto_eliminar(request,aeropuerto_id):
     
 @api_view(['DELETE'])
 def Aerolinea_eliminar(request,aerolinea_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.delete_aerolinea"):
+        return Response({"error": "No tienes permisos para eliminar la aerolinea."}, status=status.HTTP_403_FORBIDDEN)
+
     aerolinea = Aerolinea.objects.get(id=aerolinea_id)
     try:
         aerolinea.delete()
@@ -603,6 +713,11 @@ def Aerolinea_eliminar(request,aerolinea_id):
     
 @api_view(['DELETE'])
 def Reserva_eliminar(request,reserva_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.delete_reserva"):
+        return Response({"error": "No tienes permisos para eliminar la reserva."}, status=status.HTTP_403_FORBIDDEN)
+    
     reserva = Reserva.objects.get(id=reserva_id)
     try:
         reserva.delete()
@@ -612,9 +727,57 @@ def Reserva_eliminar(request,reserva_id):
     
 @api_view(['DELETE'])
 def Vuelo_eliminar(request,vuelo_id):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.delete_vuelo"):
+        return Response({"error": "No tienes permisos para eliminar el vuelo."}, status=status.HTTP_403_FORBIDDEN)
+    
     vuelo = Vuelo.objects.get(id=vuelo_id)
     try:
         vuelo.delete()
         return Response("Vuelo ELIMINADA")
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#--------------------------------------usuario----------------------------------------------------------------
+
+class registrar_usuario(generics.CreateAPIView):
+    serializer_class = UsuarioSerializerRegistro
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        serializers = UsuarioSerializerRegistro(data=request.data)
+        if serializers.is_valid():
+            try:
+                rol = request.data.get('rol')
+                user = Usuario.objects.create_user(
+                        username = serializers.data.get("username"), 
+                        email = serializers.data.get("email"), 
+                        password = serializers.data.get("password1"),
+                        rol = rol,
+                        )
+                if(rol == Usuario.PASAJERO):
+                    grupo = Group.objects.get(name='Pasajero') 
+                    grupo.user_set.add(user)
+                    pasajero = Pasajero.objects.create( usuario = user)
+                    pasajero.save()
+                elif(rol == Usuario.GERENTE):
+                    grupo = Group.objects.get(name='Gerente') 
+                    grupo.user_set.add(user)
+                    gerente = Gerente.objects.create(usuario = user)
+                    gerente.save()
+                usuarioSerializado = UsuarioSerializer(user)
+                return Response(usuarioSerializado.data)
+            except Exception as error:
+                print(repr(error))
+                return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def obtener_usuario_token(request,token):
+    ModeloToken = AccessToken.objects.get(token=token)
+    usuario = Usuario.objects.get(id=ModeloToken.user_id)
+    serializer = UsuarioSerializer(usuario)
+    return Response(serializer.data)
+    
