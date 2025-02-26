@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from oauth2_provider.models import AccessToken 
-
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 
 #----------------------------------------------Listar----------------------------------------------------------------
 @api_view(['GET'])
@@ -395,14 +395,20 @@ def Reserva_obtener_id(request,reserva_id):
     return Response(serializer.data)
 
 #Obtener Reserva
-@api_view(['GET']) 
+@api_view(['GET'])
 def Reserva_obtener(request):
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.view_reserva"):
+        return Response({"error": "No tienes permisos para ver Las reservas."}, status=status.HTTP_403_FORBIDDEN)
+    
     reserva = Reserva.objects.select_related(
     'pasajero',
     'vuelo'
 )
-    serializer = ReservaSerializer(reserva) 
+    serializer = ReservaSerializer(reserva,many=True) 
     return Response(serializer.data)
+
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
 @api_view(['POST'])
@@ -747,26 +753,32 @@ class registrar_usuario(generics.CreateAPIView):
     
     def create(self, request, *args, **kwargs):
         serializers = UsuarioSerializerRegistro(data=request.data)
+
         if serializers.is_valid():
             try:
                 rol = request.data.get('rol')
+
                 user = Usuario.objects.create_user(
                         username = serializers.data.get("username"), 
                         email = serializers.data.get("email"), 
                         password = serializers.data.get("password1"),
                         rol = rol,
                         )
-                if(rol == Usuario.PASAJERO):
+                
+                if(int(rol) == Usuario.PASAJERO):
                     grupo = Group.objects.get(name='Pasajero') 
                     grupo.user_set.add(user)
                     pasajero = Pasajero.objects.create( usuario = user)
                     pasajero.save()
-                elif(rol == Usuario.GERENTE):
+
+                elif(int(rol) == Usuario.GERENTE):
                     grupo = Group.objects.get(name='Gerente') 
                     grupo.user_set.add(user)
                     gerente = Gerente.objects.create(usuario = user)
                     gerente.save()
+
                 usuarioSerializado = UsuarioSerializer(user)
+                
                 return Response(usuarioSerializado.data)
             except Exception as error:
                 print(repr(error))

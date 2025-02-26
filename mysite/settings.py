@@ -55,6 +55,18 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 360000000
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # ✅ Usa OAuth2 para autenticación
+        'rest_framework.authentication.SessionAuthentication',  # Opcional, para autenticación con sesiones de Django
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # ✅ Solo permite acceso a usuarios autenticados
+    ],
+}
+
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
