@@ -17,9 +17,12 @@ from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 @api_view(['GET'])
 def lista_aeropuerto(request):
 
-    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    print(f"👤 Usuario autenticado en la API: {request.user}")
+    print(f"🔑 Permisos del usuario: {request.user.get_all_permissions()}")
+
     if not request.user.has_perm("apaeropuerto.view_aeropuerto"):
         return Response({"error": "No tienes permisos para ver los Aeropuertos."}, status=status.HTTP_403_FORBIDDEN)
+
     
     aeropuerto = Aeropuerto.objects.prefetch_related(
     Prefetch('aerolinea_de_aeropuerto'),  # ManyToMany con Aerolínea
