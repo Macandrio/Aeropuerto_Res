@@ -52,9 +52,11 @@ class VueloSerializer(serializers.ModelSerializer):
 # Clase Usuario
 
 class UsuarioSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Usuario
-        fields = '__all__'
+        fields = ("__all__")
+
 
 # Clae Pasajero
 
@@ -219,7 +221,7 @@ class  ReservaSerializerCreate(serializers.ModelSerializer):
         return codigo_descueto
     
     def validate_fecha_reserva(self,fecha_reserva):
-        hoy = datetime.datetime.now()
+        hoy = datetime.now()
         if fecha_reserva < hoy:
             raise serializers.ValidationError("La fecha de reserva no puede ser anterior a la fecha actual.")
         return fecha_reserva

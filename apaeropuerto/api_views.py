@@ -255,6 +255,9 @@ def Reservas_buscar_avanzado(request):
         formulario = BusquedaAvanzadaReservaForm(request.query_params)
 
         if formulario.is_valid():
+            usuario = request.GET.get("id_usuario")
+            pasajero_logueado = Pasajero.objects.get(usuario=usuario)
+
             QSreserva = Reserva.objects.select_related(
                                 'pasajero',
                                 'vuelo'                             
@@ -264,6 +267,7 @@ def Reservas_buscar_avanzado(request):
             metodo_pago = formulario.cleaned_data.get('metodo_pago')
             fecha_reserva = formulario.cleaned_data.get('fecha_reserva')
             estado_de_pago = formulario.cleaned_data.get('estado_de_pago')
+            
 
             # Aplicar filtros dinámicamente
             if metodo_pago:
@@ -273,7 +277,9 @@ def Reservas_buscar_avanzado(request):
                 QSreserva = QSreserva.filter(fecha_reserva__gte=fecha_reserva) #Mayor o igual 
 
             if estado_de_pago is not None:
-                QSreserva = QSreserva.filter(estado_de_pago=estado_de_pago) 
+                QSreserva = QSreserva.filter(estado_de_pago=estado_de_pago)
+            
+            QSreserva = QSreserva.filter(pasajero=pasajero_logueado)  # Filtra por pasajero logueado
 
             # Obtener resultados y serializar
             reserva = QSreserva.all()
@@ -408,6 +414,19 @@ def Reserva_obtener(request):
 )
     serializer = ReservaSerializer(reserva,many=True) 
     return Response(serializer.data)
+
+@api_view(['GET'])
+def obtener_pasajeros(request, usuario_id):  # 🔹 Recibir usuario_id como parámetro desde la URL
+    # 🔹 Filtrar el pasajero correspondiente al usuario
+    pasajero = Pasajero.objects.filter(usuario__id=usuario_id).first()
+
+    if not pasajero:
+        return Response({"error": "No se encontró un pasajero para este usuario."}, status=404)
+
+    serializer = PasajeroSerializer(pasajero)  # 🔹 Serializamos solo 1 pasajero (no lista)
+    return Response(serializer.data)
+
+
 
 #--------------------------------------Formularios_Crear----------------------------------------------------------------
 
@@ -745,6 +764,27 @@ def Vuelo_eliminar(request,vuelo_id):
     except Exception as error:
         return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+#--------------------------------------Get pasajero y gerente----------------------------------------------------------------
+
+#Obtener Reserva
+@api_view(['GET']) 
+def Reserva_pasajero_obtener(request,usuario_id):
+    reserva = Reserva.objects.select_related(
+        'pasajero',
+        'vuelo'
+    )
+
+    pasajero = Pasajero.objects.prefetch_related(
+        Prefetch('equipaje_pasajero'),        # ManyToOne con Equipaje
+        Prefetch('reserva_pasajero'),         # ManyToOne con Reserva
+        Prefetch('pajarelo_asiento'),         # ManyToOne con Asiento
+    ).filter(usuario_id = usuario_id).first()
+
+    reserva = reserva.filter(pasajero_id=pasajero)
+
+    serializer = ReservaSerializer(reserva, many=True) 
+    return Response(serializer.data)
+
 #--------------------------------------usuario----------------------------------------------------------------
 
 class registrar_usuario(generics.CreateAPIView):
@@ -766,13 +806,13 @@ class registrar_usuario(generics.CreateAPIView):
                         )
                 
                 if(int(rol) == Usuario.PASAJERO):
-                    grupo = Group.objects.get(name='Pasajero') 
+                    grupo = Group.objects.get(id=1) 
                     grupo.user_set.add(user)
                     pasajero = Pasajero.objects.create( usuario = user)
                     pasajero.save()
 
                 elif(int(rol) == Usuario.GERENTE):
-                    grupo = Group.objects.get(name='Gerente') 
+                    grupo = Group.objects.get(id = 2) 
                     grupo.user_set.add(user)
                     gerente = Gerente.objects.create(usuario = user)
                     gerente.save()

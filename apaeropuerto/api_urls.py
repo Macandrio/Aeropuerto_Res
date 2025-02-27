@@ -62,7 +62,10 @@ urlpatterns = [
 
     #usuario
     path('registrar/usuario/',registrar_usuario.as_view()),
-    path('usuario/token/<str:token>',obtener_usuario_token)
+    path('usuario/token/<str:token>',obtener_usuario_token),
 
-    
+
+    #get
+    path('Reserva/pasajero/<int:usuario_id>', Reserva_pasajero_obtener),
+    path('Pasajeros/usuario/<int:usuario_id>', obtener_pasajeros),
 ]
