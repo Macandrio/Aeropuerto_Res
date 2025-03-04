@@ -17,4 +17,4 @@ Pasos a seguir al descargar el proyecto desde git
 Apartir de aqui ya puedes usar la aplicacion
  
 puedes usar los datos ya guardados con:
-    * python manage.py loaddata apaeropuerto/fixtures/datos_sesion-json
+    * python manage.py loaddata apaeropuerto/fixtures/grupos_permisos_usuarios.json
