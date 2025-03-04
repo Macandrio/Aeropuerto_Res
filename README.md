@@ -12,7 +12,7 @@ Pasos a seguir al descargar el proyecto desde git
     * python manage.py makemigrations
     * python manage.py migrate
 6. Debemos usar los datos ya guardados para los grupos y los permisos con:
-    * python manage.py loaddata apaeropuerto/fixtures/grupos_permisos.json
+    * python manage.py loaddata apaeropuerto/fixtures/grupos_permisos_usuarios.json
 
 Apartir de aqui ya puedes usar la aplicacion
  
