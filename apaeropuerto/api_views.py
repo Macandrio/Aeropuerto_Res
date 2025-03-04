@@ -788,6 +788,46 @@ def Reserva_pasajero_obtener(request,usuario_id):
     serializer = ReservaSerializer(reserva, many=True) 
     return Response(serializer.data)
 
+@api_view(['GET']) 
+def Equipaje_pasajero_obtener(request,usuario_id):
+    equipaje = Equipaje.objects.select_related(
+        'pasajero'
+    )
+
+    pasajero = Pasajero.objects.prefetch_related(
+        Prefetch('equipaje_pasajero'),        # ManyToOne con Equipaje
+        Prefetch('reserva_pasajero'),         # ManyToOne con Reserva
+        Prefetch('pajarelo_asiento'),         # ManyToOne con Asiento
+    ).filter(usuario_id = usuario_id).first()
+
+    equipaje = equipaje.filter(pasajero_id=pasajero)
+
+    serializer = EquipajeSerializer(equipaje, many=True) 
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def Equipaje_create(request): 
+
+    # 🔹 Verificar si el usuario tiene el permiso correspondiente
+    if not request.user.has_perm("apaeropuerto.add_equipaje"):
+        return Response({"error": "No tienes permisos para crear las reservas."}, status=status.HTTP_403_FORBIDDEN)
+    
+    equipajeCreateSerializer = EquipajeSerializerCreate(data=request.data)
+
+    if equipajeCreateSerializer.is_valid():
+        try:
+            equipajeCreateSerializer.save()
+            return Response("Equipaje Creado")
+        
+        except serializers.ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            print(repr(error))
+            return Response(repr(error), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        print("❌ Errores de validación:", equipajeCreateSerializer.errors)
+        return Response(equipajeCreateSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #--------------------------------------usuario----------------------------------------------------------------
 
 class registrar_usuario(generics.CreateAPIView):

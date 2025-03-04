@@ -86,6 +86,24 @@ class ReservaSerializer(serializers.ModelSerializer):
                   )
         model = Reserva
 
+# clase Reserva
+class EquipajeSerializer(serializers.ModelSerializer):
+   
+    peso = serializers.FloatField()
+    dimensiones = serializers.CharField(max_length=50)
+    tipo_material = serializers.CharField(max_length=30)
+    color = serializers.CharField(max_length=50)
+    pasajero = PasajeroSerializer()
+
+    class Meta:
+        fields = ('id',
+                  'peso',
+                  'dimensiones',
+                  'tipo_material',
+                  'color',
+                  'pasajero'
+                  )
+        model = Equipaje
 
 # clase VueloAerolionea
 class VueloAerolineaSerializer(serializers.ModelSerializer):
@@ -349,7 +367,23 @@ class  VueloSerializerCreate(serializers.ModelSerializer):
 
         return instance
 
-        
+# Equipaje
+class  EquipajeSerializerCreate(serializers.ModelSerializer):
+
+    class Meta:
+        model = Equipaje
+        fields = '__all__'
+
+    
+    def validate_metodo_pago(self,peso):
+        if peso > 0 :
+            raise serializers.ValidationError('Debe tener un peso positivo')
+        return peso
+    
+    def validate_pasajero(self,pasajero):
+        if pasajero == "":
+            raise serializers.ValidationError("Debes elegir un pasajero.")
+        return pasajero        
 
     
 #---------------------------------------------------------Actualizar--------------------------------------------------------------------------------

@@ -68,4 +68,6 @@ urlpatterns = [
     #get
     path('Reserva/pasajero/<int:usuario_id>', Reserva_pasajero_obtener),
     path('Pasajeros/usuario/<int:usuario_id>', obtener_pasajeros),
+    path('Equipaje/pasajero/<int:usuario_id>', Equipaje_pasajero_obtener),
+    path('Equipaje/Crear', Equipaje_create),
 ]
